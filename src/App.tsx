@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import { audioEngine } from './audio/AudioEngine';
 import { createScaleSystem } from './components/ScaleSystem';
+import SynthPanel from './components/SynthPanel';
+import { SettingsPopup } from './components/SettingsPopup';
 
 // Types for polygon system
 interface Polygon {
@@ -11,6 +13,30 @@ interface Polygon {
   color: string;
   active: boolean;
   notes: (string | null)[];
+  synthSettings: {
+    waveShape: 'sine' | 'square' | 'triangle' | 'sawtooth';
+    enabled: boolean;
+    attack?: number;
+    decay?: number;
+    sustain?: number;
+    release?: number;
+    filterType?: 'lowpass' | 'highpass' | 'bandpass' | 'notch';
+    filterFreq?: number;
+    filterQ?: number;
+    filterEnabled?: boolean;
+    effects?: {
+      reverb?: { enabled: boolean; mix: number; decay: number };
+      delay?: { enabled: boolean; mix: number; time: number; feedback: number };
+      distortion?: { enabled: boolean; mix: number; amount: number };
+    };
+    lfo?: {
+      enabled: boolean;
+      waveShape: 'sine' | 'square' | 'triangle' | 'sawtooth' | 'noise';
+      rate: number;
+      depth: number;
+      target: 'filter' | 'pitch' | 'volume';
+    };
+  };
 }
 
 interface PlayheadState {
@@ -32,7 +58,31 @@ function App() {
       radius: 80,
       color: '#00ff00',
       active: true,
-      notes: ['C', 'E', 'G']
+      notes: ['C', 'E', 'G'],
+      synthSettings: {
+        waveShape: 'sine',
+        enabled: true,
+        attack: 0.01,
+        decay: 0.1,
+        sustain: 0.8,
+        release: 0.3,
+        filterType: 'lowpass',
+        filterFreq: 1000,
+        filterQ: 1,
+        filterEnabled: false,
+        effects: {
+          reverb: { enabled: false, mix: 0.3, decay: 2 },
+          delay: { enabled: false, mix: 0.3, time: 0.3, feedback: 0.4 },
+          distortion: { enabled: false, mix: 0.3, amount: 20 }
+        },
+        lfo: {
+          enabled: false,
+          waveShape: 'sine',
+          rate: 1,
+          depth: 0.5,
+          target: 'filter'
+        }
+      }
     }
   ]);
   
@@ -48,6 +98,8 @@ function App() {
   
   const [editingPolygon, setEditingPolygon] = useState<number | null>(null);
   const [showEditPopup, setShowEditPopup] = useState(false);
+  const [showSettingsPopup, setShowSettingsPopup] = useState(false);
+
   const [selectedPolygon, setSelectedPolygon] = useState<Polygon | null>(null);
   const [selectedScale, setSelectedScale] = useState('Major');
   const [rootNote, setRootNote] = useState('C');
@@ -122,15 +174,8 @@ function App() {
             console.log(`🎵 TRIGGERING note: ${note} at angle ${angle.toFixed(1)}°, vertex angle: ${vertexAngle.toFixed(1)}°, diff: ${angleDiff.toFixed(1)}°`);
             // Resume audio context if needed
             audioEngine.resumeContext();
-            // Play note
-            audioEngine.playNote(note, 0.3, {
-              oscillatorType: 'sine',
-              volume: 0.2,
-              attack: 0.05,
-              decay: 0.1,
-              sustain: 0.7,
-              release: 0.2
-            });
+            // Play note using polygon's synthesizer settings
+            audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
           }
         }
       }
@@ -175,7 +220,31 @@ function App() {
       radius: 60 + (polygons.length * polygonSettings.spacing),
       color: colors[polygons.length % colors.length],
       active: true,
-      notes: Array(newSides).fill(null)
+      notes: Array(newSides).fill(null),
+      synthSettings: {
+        waveShape: 'sine',
+        enabled: true,
+        attack: 0.01,
+        decay: 0.1,
+        sustain: 0.8,
+        release: 0.3,
+        filterType: 'lowpass',
+        filterFreq: 1000,
+        filterQ: 1,
+        filterEnabled: false,
+        effects: {
+          reverb: { enabled: false, mix: 0.3, decay: 2 },
+          delay: { enabled: false, mix: 0.3, time: 0.3, feedback: 0.4 },
+          distortion: { enabled: false, mix: 0.3, amount: 20 }
+        },
+        lfo: {
+          enabled: false,
+          waveShape: 'sine',
+          rate: 1,
+          depth: 0.5,
+          target: 'filter'
+        }
+      }
     };
     setPolygons(prev => [...prev, newPolygon]);
     console.log('New polygon added:', newPolygon);
@@ -322,18 +391,11 @@ function App() {
       angle: targetAngle
     }));
     
-    // Play the note immediately
+    // Play the note immediately using polygon's synthesizer settings
     if (nextNote) {
       console.log(`🎵 Playing preview note: ${nextNote} at angle ${targetAngle.toFixed(1)}°`);
       audioEngine.resumeContext();
-      audioEngine.playNote(nextNote, 0.3, {
-        oscillatorType: 'sine',
-        volume: 0.2,
-        attack: 0.05,
-        decay: 0.1,
-        sustain: 0.7,
-        release: 0.2
-      });
+      audioEngine.playNoteWithPolygonSynth(nextNote, 1.0, polygon.synthSettings, 0.5);
     }
     
     // Resume animation after a short delay
@@ -343,6 +405,20 @@ function App() {
     }, 500);
     
     console.log(`Cycled note to ${nextNote} and jumped playhead to ${targetAngle.toFixed(1)}°`);
+  };
+
+  // Update polygon synthesizer settings
+  const updatePolygonSynthSettings = (polygonId: number, synthSettings: any) => {
+    setPolygons(prev => prev.map(p =>
+      p.id === polygonId
+        ? { ...p, synthSettings }
+        : p
+    ));
+
+    // Also update selected polygon if it's the one being edited
+    if (selectedPolygon && selectedPolygon.id === polygonId) {
+      setSelectedPolygon(prev => prev ? { ...prev, synthSettings } : null);
+    }
   };
 
   const deleteNote = (polygonId: number, vertexIndex: number) => {
@@ -506,75 +582,6 @@ function App() {
     );
   };
 
-  // Render polygon replica for popup
-  const renderPolygonReplica = (polygon: Polygon) => {
-    const centerX = 100;
-    const centerY = 100;
-    const scale = 0.4; // Scale down for popup
-    const vertices = [];
-    const lines = [];
-    
-    // Calculate vertex positions
-    const vertexPositions = [];
-    for (let i = 0; i < polygon.sides; i++) {
-      const angle = (i * 360 / polygon.sides - 90) * Math.PI / 180;
-      const x = centerX + (polygon.radius * scale) * Math.cos(angle);
-      const y = centerY + (polygon.radius * scale) * Math.sin(angle);
-      vertexPositions.push({ x, y });
-    }
-    
-    // Draw lines connecting vertices
-    for (let i = 0; i < polygon.sides; i++) {
-      const current = vertexPositions[i];
-      const next = vertexPositions[(i + 1) % polygon.sides];
-      
-      lines.push(
-                  <line
-          key={`line-${i}`}
-          x1={current.x}
-          y1={current.y}
-          x2={next.x}
-          y2={next.y}
-          stroke={polygon.color}
-          strokeWidth="2"
-          className="polygon-line"
-        />
-      );
-    }
-    
-    // Draw vertices with note colors
-    for (let i = 0; i < polygon.sides; i++) {
-      const { x, y } = vertexPositions[i];
-      const note = polygon.notes[i];
-      const noteColor = getNoteColor(note, polygon.color);
-      
-      vertices.push(
-                      <circle
-                        key={i}
-                        cx={x}
-                        cy={y}
-          r="8"
-          fill={noteColor}
-          stroke={polygon.color}
-          strokeWidth="2"
-          className="polygon-vertex replica-vertex"
-                        onClick={(e) => {
-                          e.stopPropagation();
-            console.log('Vertex clicked:', i, 'Current note:', note);
-            cycleNote(polygon.id, i);
-          }}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Vertex right-clicked:', i);
-            deleteNote(polygon.id, i);
-                        }}
-                      />
-                    );
-    }
-    
-    return [...lines, ...vertices];
-  };
 
                     return (
     <div className="app">
@@ -612,7 +619,8 @@ function App() {
               }}
               style={{ zIndex: 1000, position: 'relative' }}
             >
-              {playhead.isPlaying ? '⏸️ PAUSE' : '▶️ PLAY'}
+              <span className="button-emoji">{playhead.isPlaying ? '⏸️' : '▶️'}</span>
+              {playhead.isPlaying ? 'PAUSE' : 'PLAY'}
             </button>
             <button
               className="reset-button"
@@ -623,7 +631,7 @@ function App() {
               }}
               style={{ zIndex: 1000, position: 'relative' }}
             >
-              🔄 RESET
+              <span className="button-emoji">🔄</span> RESET
             </button>
             <button
               onClick={() => console.log('Test button works!')}
@@ -724,6 +732,17 @@ function App() {
               ))}
             </div>
           </div>
+
+          {/* Settings Button */}
+          <div className="settings-control">
+            <button
+              className="settings-button"
+              onClick={() => setShowSettingsPopup(true)}
+              title="Settings & Export"
+            >
+              <span className="button-emoji">⚙️</span> SETTINGS
+            </button>
+          </div>
       </div>
       
         <div className="layer-panel">
@@ -795,7 +814,9 @@ function App() {
                           </div>
         </div>
             ))}
-            <button className="add-layer" onClick={addPolygon}>+ ADD POLYGON</button>
+            <button className="add-layer" onClick={addPolygon}>
+              <span className="button-emoji">+</span> ADD POLYGON
+            </button>
                             </div>
                         </div>
       </main>
@@ -810,55 +831,26 @@ function App() {
                     </div>
 
             <div className="popup-content">
-              {/* Synth Panel (Left Half) */}
-              <div className="synth-panel">
-                <h4>Synth Engine</h4>
-                <div className="synth-placeholder">
-                  <p>🎛️ Synth controls coming soon...</p>
-                  <p>Additive • Subtractive • Wavetable</p>
-                  <p>Reverb • Echo • Bitcrusher</p>
-                  </div>
-                  </div>
-                  
-              {/* Note Editor Panel (Right Half) */}
-              <div className="note-editor-panel">
-                <h4>Note Editor</h4>
-                        
-                {/* Polygon Replica */}
-                <div className="polygon-replica-container">
-                  <svg width="200" height="200" className="polygon-replica">
-                    {renderPolygonReplica(selectedPolygon)}
-                  </svg>
-                        </div>
-                
-                <div className="note-legend">
-                  <p>Left-click: Cycle notes • Right-click: Delete</p>
-                  <div className="color-legend">
-                    {getScaleNotes(selectedScale).map((note, index) => {
-                      const noteColors = {
-                        'C': '#ff0000', 'D': '#ff4400', 'E': '#ff8800', 'F': '#ffcc00',
-                        'G': '#ffff00', 'A': '#88ff00', 'B': '#00ff88', 'C#': '#0088ff',
-                        'D#': '#4400ff', 'F#': '#8800ff', 'G#': '#cc00ff', 'A#': '#ff00ff'
-                      };
-                      const color = noteColors[note as keyof typeof noteColors] || '#ffffff';
-                      return (
-                        <span 
-                          key={note} 
-                          className="note-color" 
-                          style={{background: color}}
-                          title={note}
-                        >
-                          {note}
-                        </span>
-                      );
-                    })}
-                      </div>
-                  </div>
-                </div>
+              {/* Synth Panel (Full Width) */}
+              <SynthPanel
+                polygon={selectedPolygon!}
+                onUpdatePolygon={updatePolygonSynthSettings}
+                onClose={() => setSelectedPolygon(null)}
+              />
             </div>
                     </div>
             </div>
           )}
+
+      {/* Settings Popup */}
+      <SettingsPopup
+        isOpen={showSettingsPopup}
+        onClose={() => setShowSettingsPopup(false)}
+        polygons={polygons}
+        scaleSystem={scaleSystem}
+        selectedScale={selectedScale}
+        rootNote={rootNote}
+      />
     </div>
   );
 }

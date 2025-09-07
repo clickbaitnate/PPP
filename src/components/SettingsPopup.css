@@ -1,0 +1,224 @@
+/* Settings Popup */
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.settings-popup {
+  background: #1a1a1a;
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  color: #00ff00;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.settings-header h3 {
+  margin: 0;
+  color: #00ff00;
+  font-size: 18px;
+}
+
+.close-settings {
+  background: none;
+  border: none;
+  color: #00ff00;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-settings:hover {
+  background: #333;
+  border-radius: 2px;
+}
+
+.settings-content {
+  padding: 16px;
+}
+
+.settings-section {
+  margin-bottom: 24px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.settings-section h4 {
+  margin: 0 0 12px 0;
+  color: #00ff00;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Export Controls */
+.export-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.export-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.export-control label {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.measures-input {
+  background: #111;
+  border: 1px solid #444;
+  border-radius: 3px;
+  color: #00ff00;
+  padding: 6px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+}
+
+.measures-input:focus {
+  outline: none;
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+}
+
+.export-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.export-button {
+  padding: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #111;
+  color: #ccc;
+  transition: all 0.2s;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.export-button:hover {
+  background: #333;
+  border-color: #666;
+}
+
+.export-button.midi-export:hover {
+  background: #002200;
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+.export-button.wav-export:hover {
+  background: #220022;
+  border-color: #ff00ff;
+  color: #ff00ff;
+}
+
+/* Theme Selector */
+.theme-selector {
+  display: flex;
+  align-items: center;
+}
+
+.theme-selector label {
+  font-size: 12px;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.theme-dropdown {
+  background: #111;
+  border: 1px solid #444;
+  border-radius: 3px;
+  color: #00ff00;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  min-width: 120px;
+}
+
+.theme-dropdown:focus {
+  outline: none;
+  border-color: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+}
+
+.theme-dropdown option {
+  background: #111;
+  color: #00ff00;
+}
+
+/* Scrollbar Styling */
+.settings-popup::-webkit-scrollbar {
+  width: 8px;
+}
+
+.settings-popup::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.settings-popup::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.settings-popup::-webkit-scrollbar-thumb:hover {
+  background: #00cc00;
+}
+
+/* Emoji styling */
+.settings-emoji, .export-emoji {
+  margin-right: 4px;
+}
+
+[data-theme="kawaii"] .settings-emoji::before {
+  content: "🌸";
+}
+
+[data-theme="kawaii"] .export-emoji {
+  filter: brightness(1.2) saturate(1.5);
+}
+
+[data-theme="cyberpunk"] .settings-emoji::before {
+  content: "🤖";
+}
+
+[data-theme="cyberpunk"] .export-emoji {
+  filter: drop-shadow(0 0 3px #00ffff);
+  text-shadow: 0 0 5px #ff00ff;
+}

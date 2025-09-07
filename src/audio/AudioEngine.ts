@@ -1,6 +1,8 @@
 // Audio Engine for Pythagorus' Polyrhythm Phactory
 // Handles Web Audio API, synthesis, and polyrhythmic timing
 
+import { PolygonSynthSettings } from './SynthEngine';
+
 export interface Note {
   frequency: number;
   duration: number;
@@ -134,20 +136,20 @@ export class AudioEngine {
 
       // Apply ADSR envelope
       const now = this.context.currentTime;
-      const attackTime = synthSettings.attack;
+      const attack = synthSettings.attack;
       const decayTime = synthSettings.decay;
       const sustainLevel = synthSettings.sustain;
       const releaseTime = synthSettings.release;
 
       // Attack
       gainNode.gain.setValueAtTime(0, now);
-      gainNode.gain.linearRampToValueAtTime(synthSettings.volume, now + attackTime);
+      gainNode.gain.linearRampToValueAtTime(synthSettings.volume, now + attack);
       
       // Decay
-      gainNode.gain.linearRampToValueAtTime(synthSettings.volume * sustainLevel, now + attackTime + decayTime);
+      gainNode.gain.linearRampToValueAtTime(synthSettings.volume * sustainLevel, now + attack + decayTime);
       
       // Sustain (held until release)
-      gainNode.gain.setValueAtTime(synthSettings.volume * sustainLevel, now + attackTime + decayTime);
+      gainNode.gain.setValueAtTime(synthSettings.volume * sustainLevel, now + attack + decayTime);
       
       // Release
       gainNode.gain.linearRampToValueAtTime(0, now + duration);
@@ -164,7 +166,7 @@ export class AudioEngine {
       setTimeout(() => {
         this.activeOscillators.delete(noteId);
         this.activeGains.delete(noteId);
-      }, (duration + releaseTime) * 1000);
+      }, (duration + attack + 0.1) * 1000);
 
     } catch (error) {
       console.error('Error playing note:', error);
@@ -195,6 +197,125 @@ export class AudioEngine {
   // Set BPM
   setBPM(bpm: number): void {
     this.bpm = Math.max(60, Math.min(300, bpm));
+  }
+
+  // Generate wavetable for polygon synthesizer
+  generateWavetable(settings: PolygonSynthSettings, length: number = 2048): Float32Array {
+
+    // Generate base wave shapes
+    const generateBaseWave = (shape: string): Float32Array => {
+      const wave = new Float32Array(length);
+      for (let i = 0; i < length; i++) {
+        const t = (i / length) * 4 - 2; // -2 to 2 for better wave shapes
+
+        switch (shape) {
+          case 'sine':
+            wave[i] = Math.sin(t * Math.PI / 2);
+            break;
+          case 'square':
+            wave[i] = Math.sign(Math.sin(t * Math.PI / 2));
+            break;
+          case 'triangle':
+            wave[i] = 2 * Math.abs((t % 4) - 2) / 2 - 1;
+            break;
+          case 'sawtooth':
+            wave[i] = (t % 4) / 2 - 1;
+            break;
+          case 'noise':
+            wave[i] = (Math.random() - 0.5) * 2;
+            break;
+          default:
+            wave[i] = Math.sin(t * Math.PI / 2); // default to sine
+        }
+      }
+      return wave;
+    };
+
+    // Use the waveShape directly
+    return generateBaseWave(settings.waveShape);
+  }
+
+  // Play note with polygon synthesizer settings (wavetable synthesis)
+  playNoteWithPolygonSynth(noteName: string, duration: number = 0.5, polygonSettings: PolygonSynthSettings, volume: number = 0.3): void {
+    if (!this.context || !this.masterGain) {
+      console.warn('Audio engine not initialized');
+      return;
+    }
+
+    if (!polygonSettings.enabled) {
+      // Fall back to basic synth if polygon synth is disabled
+      this.playNote(noteName, duration, { volume });
+      return;
+    }
+
+    const frequency = this.noteFrequencies[noteName];
+    if (!frequency) {
+      console.warn(`Unknown note: ${noteName}`);
+      return;
+    }
+
+    const noteId = `${noteName}_${Date.now()}_${Math.random()}`;
+
+    try {
+      // Create oscillator
+      const oscillator = this.context.createOscillator();
+      const gainNode = this.context.createGain();
+      const filter = this.context.createBiquadFilter();
+
+      // Set frequency
+      oscillator.frequency.value = frequency;
+
+      // Set oscillator type directly from settings
+      oscillator.type = polygonSettings.waveShape as OscillatorType;
+
+      // Connect audio graph (no filter)
+      oscillator.connect(gainNode);
+      gainNode.connect(this.masterGain);
+
+      // ADSR envelope using polygon settings
+      const now = this.context.currentTime;
+      const attack = polygonSettings.attack || 0.01;
+      const decay = polygonSettings.decay || 0.1;
+      const sustain = polygonSettings.sustain || 0.8;
+      const release = polygonSettings.release || 0.3;
+
+      // Attack: Start at 0, ramp to full volume
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(volume, now + attack);
+
+      // Decay: Ramp down to sustain level
+      gainNode.gain.linearRampToValueAtTime(volume * sustain, now + attack + decay);
+
+      // Sustain: Hold sustain level until release starts
+      const sustainStart = now + attack + decay;
+      const releaseStart = now + duration - release;
+
+      if (releaseStart > sustainStart) {
+        gainNode.gain.setValueAtTime(volume * sustain, sustainStart);
+        // Release: Ramp down to 0
+        gainNode.gain.linearRampToValueAtTime(0, now + duration);
+      } else {
+        // If note is too short for full ADS, just fade out
+        gainNode.gain.linearRampToValueAtTime(0, now + duration);
+      }
+
+      // Start and stop oscillator
+      oscillator.start(now);
+      oscillator.stop(now + duration + 0.1); // Stop slightly after fade out
+
+      // Store references for cleanup
+      this.activeOscillators.set(noteId, oscillator);
+      this.activeGains.set(noteId, gainNode);
+
+      // Clean up after note ends
+      setTimeout(() => {
+        this.activeOscillators.delete(noteId);
+        this.activeGains.delete(noteId);
+      }, (duration + attack + 0.1) * 1000);
+
+    } catch (error) {
+      console.error('Error playing note with polygon synth:', error);
+    }
   }
 
   // Get current state
