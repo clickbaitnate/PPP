@@ -110,12 +110,12 @@ function App() {
   const lastTriggerTimeRef = useRef<{ [key: string]: number }>({});
 
   // Check for note triggers based on playhead angle
-  const checkNoteTriggers = useCallback(async (angle: number) => {
+  const checkNoteTriggers = useCallback((angle: number) => {
     console.log(`checkNoteTriggers called with angle: ${angle.toFixed(1)}°`);
 
-    // Process polygons sequentially to handle async operations properly
-    for (const polygon of polygons) {
-      if (!polygon.active) continue;
+    // Process polygons synchronously to not block animation
+    polygons.forEach(polygon => {
+      if (!polygon.active) return;
 
       // Calculate angle per vertex
       const anglePerVertex = 360 / polygon.sides;
@@ -136,17 +136,13 @@ function App() {
             if (!lastTrigger || now - lastTrigger > 100) { // Minimum 100ms between same note triggers
               console.log(`🎵 TRIGGERING note: ${note} at angle ${angle.toFixed(1)}°, vertex angle: ${vertexAngle.toFixed(1)}°, diff: ${angleDiff.toFixed(1)}°`);
               lastTriggerTimeRef.current[noteId] = now;
-              // Play note using polygon's synthesizer settings
-              try {
-                await audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
-              } catch (error) {
-                console.error('Error playing note:', error);
-              }
+              // Play note
+              audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
             }
           }
         }
       }
-    }
+    });
   }, [polygons, audioEngine]);
 
   // Initialize scale system
@@ -157,7 +153,7 @@ function App() {
     if (playhead.isPlaying) {
       const startTime = performance.now();
 
-      const animate = async () => {
+      const animate = () => {
         if (!playhead.isPlaying) {
           return;
         }
@@ -173,12 +169,8 @@ function App() {
         const progress = (elapsed % secondsPerRevolution) / secondsPerRevolution; // 0 to 1
         const newAngle = progress * 360; // 0 to 360 degrees
 
-        // Check for note triggers (async)
-        try {
-          await checkNoteTriggers(newAngle);
-        } catch (error) {
-          console.error('Error in note triggers:', error);
-        }
+        // Check for note triggers
+        checkNoteTriggers(newAngle);
 
         setPlayhead(prev => ({
           ...prev,

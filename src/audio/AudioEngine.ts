@@ -59,7 +59,7 @@ export class AudioEngine {
     this.initializeAudio();
   }
 
-  private async initializeAudio(): Promise<void> {
+  private initializeAudio(): void {
     try {
       this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
       this.masterGain = this.context.createGain();
@@ -79,24 +79,6 @@ export class AudioEngine {
     }
   }
 
-  // Play a note (async version for better context handling)
-  async playNoteAsync(noteName: string, duration: number = 0.5, settings: Partial<SynthSettings> = {}): Promise<void> {
-    // Ensure audio context is initialized and resumed
-    if (!this.isInitialized) {
-      await this.initializeAudio();
-    }
-
-    if (!this.context || !this.masterGain) {
-      console.warn('Audio engine not initialized');
-      return;
-    }
-
-    // Always try to resume context
-    await this.resumeContext();
-
-    // Call the original playNote method
-    this.playNote(noteName, duration, settings);
-  }
 
   // Play a note
   playNote(noteName: string, duration: number = 0.5, settings: Partial<SynthSettings> = {}): void {
@@ -254,10 +236,10 @@ export class AudioEngine {
   }
 
   // Play note with polygon synthesizer settings (wavetable synthesis)
-  async playNoteWithPolygonSynth(noteName: string, duration: number = 0.5, polygonSettings: PolygonSynthSettings, volume: number = 0.3): Promise<void> {
+  playNoteWithPolygonSynth(noteName: string, duration: number = 0.5, polygonSettings: PolygonSynthSettings, volume: number = 0.3): void {
     // Ensure audio context is initialized and resumed
     if (!this.isInitialized) {
-      await this.initializeAudio();
+      this.initializeAudio();
     }
 
     if (!this.context || !this.masterGain) {
@@ -266,11 +248,13 @@ export class AudioEngine {
     }
 
     // Always try to resume context (safe to call multiple times)
-    await this.resumeContext();
+    this.resumeContext().catch(error => {
+      console.error('Error resuming audio context:', error);
+    });
 
     if (!polygonSettings.enabled) {
       // Fall back to basic synth if polygon synth is disabled
-      await this.playNoteAsync(noteName, duration, { volume });
+      this.playNote(noteName, duration, { volume });
       return;
     }
 
