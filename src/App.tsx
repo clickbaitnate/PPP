@@ -108,6 +108,7 @@ function App() {
   const animationRef = useRef<number | undefined>(undefined);
   const isManualJumpRef = useRef<boolean>(false);
   const lastTriggerTimeRef = useRef<{ [key: string]: number }>({});
+  const rpmRef = useRef<number>(playhead.rpm);
 
   // Check for note triggers based on playhead angle
   const checkNoteTriggers = useCallback((angle: number) => {
@@ -158,15 +159,23 @@ function App() {
       return;
     }
 
-    const startTime = performance.now();
+    // Only start animation if not already running
+    if (animationRef.current) {
+      return; // Animation already running
+    }
 
-    const animate = () => {
-      const elapsed = (performance.now() - startTime) / 1000;
-      const secondsPerRevolution = 60 / playhead.rpm;
+    const startTime = performance.now();
+    let lastTime = startTime;
+
+    const animate = (currentTime: number) => {
+      lastTime = currentTime;
+
+      const elapsed = (currentTime - startTime) / 1000;
+      const secondsPerRevolution = 60 / rpmRef.current;
       const progress = (elapsed % secondsPerRevolution) / secondsPerRevolution;
       const newAngle = progress * 360;
 
-      console.log('Animation frame:', newAngle.toFixed(1));
+      console.log('Animation:', { angle: newAngle.toFixed(1), rpm: rpmRef.current, elapsed: elapsed.toFixed(2) });
 
       checkNoteTriggers(newAngle);
 
@@ -183,10 +192,16 @@ function App() {
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
       }
     };
-  }, [playhead.isPlaying, playhead.rpm]);
+  }, [playhead.isPlaying, checkNoteTriggers]);
 
+  // Update RPM ref when playhead.rpm changes
+  useEffect(() => {
+    rpmRef.current = playhead.rpm;
+    console.log('RPM updated to:', playhead.rpm);
+  }, [playhead.rpm]);
 
   // Control functions
   const togglePlay = async () => {
