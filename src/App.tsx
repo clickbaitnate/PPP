@@ -150,58 +150,57 @@ function App() {
 
   // Simple animation loop for playhead
   useEffect(() => {
-    if (playhead.isPlaying) {
-      const startTime = performance.now();
-
-      const animate = () => {
-        if (!playhead.isPlaying) {
-          return;
-        }
-
-        // Don't animate if we're in a manual jump
-        if (isManualJumpRef.current) {
-          animationRef.current = requestAnimationFrame(animate);
-          return;
-        }
-
-        const elapsed = (performance.now() - startTime) / 1000; // elapsed time in seconds (more precise)
-        const secondsPerRevolution = 60 / playhead.rpm; // convert RPM to seconds per revolution
-        const progress = (elapsed % secondsPerRevolution) / secondsPerRevolution; // 0 to 1
-        const newAngle = progress * 360; // 0 to 360 degrees
-
-        // Check for note triggers
-        checkNoteTriggers(newAngle);
-
-        setPlayhead(prev => ({
-          ...prev,
-          angle: newAngle
-        }));
-
-        animationRef.current = requestAnimationFrame(animate);
-      };
-      animationRef.current = requestAnimationFrame(animate);
-    } else if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
+    if (!playhead.isPlaying) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
+      }
+      return;
     }
+
+    const startTime = performance.now();
+
+    const animate = () => {
+      const elapsed = (performance.now() - startTime) / 1000;
+      const secondsPerRevolution = 60 / playhead.rpm;
+      const progress = (elapsed % secondsPerRevolution) / secondsPerRevolution;
+      const newAngle = progress * 360;
+
+      console.log('Animation frame:', newAngle.toFixed(1));
+
+      checkNoteTriggers(newAngle);
+
+      setPlayhead(prev => ({
+        ...prev,
+        angle: newAngle
+      }));
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [playhead.isPlaying, playhead.rpm, polygons, checkNoteTriggers]);
+  }, [playhead.isPlaying, playhead.rpm]);
 
 
   // Control functions
   const togglePlay = async () => {
     console.log('Toggle play clicked, current state:', playhead.isPlaying);
-    
+
     // Resume audio context if needed
     await audioEngine.resumeContext();
-    
+
+    const newPlayingState = !playhead.isPlaying;
+    console.log('Setting new play state to:', newPlayingState);
+
     setPlayhead(prev => {
-      const newState = { ...prev, isPlaying: !prev.isPlaying };
-      console.log('New play state:', newState.isPlaying);
+      const newState = { ...prev, isPlaying: newPlayingState };
+      console.log('Playhead state updated:', newState);
       return newState;
     });
   };
