@@ -107,12 +107,15 @@ function App() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
   const isManualJumpRef = useRef<boolean>(false);
+  const lastTriggerTimeRef = useRef<{ [key: string]: number }>({});
 
   // Check for note triggers based on playhead angle
-  const checkNoteTriggers = useCallback((angle: number) => {
+  const checkNoteTriggers = useCallback(async (angle: number) => {
     console.log(`checkNoteTriggers called with angle: ${angle.toFixed(1)}°`);
-    polygons.forEach(polygon => {
-      if (!polygon.active) return;
+
+    // Process polygons sequentially to handle async operations properly
+    for (const polygon of polygons) {
+      if (!polygon.active) continue;
 
       // Calculate angle per vertex
       const anglePerVertex = 360 / polygon.sides;
@@ -126,15 +129,24 @@ function App() {
         if (angleDiff < 5 || angleDiff > 355) {
           const note = polygon.notes[i];
           if (note) {
-            console.log(`🎵 TRIGGERING note: ${note} at angle ${angle.toFixed(1)}°, vertex angle: ${vertexAngle.toFixed(1)}°, diff: ${angleDiff.toFixed(1)}°`);
-            // Resume audio context if needed
-            audioEngine.resumeContext();
-            // Play note using polygon's synthesizer settings
-            audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
+            const noteId = `${polygon.id}_${i}_${note}`;
+            // Check if this note was recently triggered to prevent stuttering
+            const now = performance.now();
+            const lastTrigger = lastTriggerTimeRef.current[noteId];
+            if (!lastTrigger || now - lastTrigger > 100) { // Minimum 100ms between same note triggers
+              console.log(`🎵 TRIGGERING note: ${note} at angle ${angle.toFixed(1)}°, vertex angle: ${vertexAngle.toFixed(1)}°, diff: ${angleDiff.toFixed(1)}°`);
+              lastTriggerTimeRef.current[noteId] = now;
+              // Play note using polygon's synthesizer settings
+              try {
+                await audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
+              } catch (error) {
+                console.error('Error playing note:', error);
+              }
+            }
           }
         }
       }
-    });
+    }
   }, [polygons, audioEngine]);
 
   // Initialize scale system
@@ -143,32 +155,36 @@ function App() {
   // Simple animation loop for playhead
   useEffect(() => {
     if (playhead.isPlaying) {
-      const startTime = Date.now();
-      
-      const animate = () => {
+      const startTime = performance.now();
+
+      const animate = async () => {
         if (!playhead.isPlaying) {
           return;
         }
-        
+
         // Don't animate if we're in a manual jump
         if (isManualJumpRef.current) {
           animationRef.current = requestAnimationFrame(animate);
           return;
         }
-        
-        const elapsed = (Date.now() - startTime) / 1000; // elapsed time in seconds
+
+        const elapsed = (performance.now() - startTime) / 1000; // elapsed time in seconds (more precise)
         const secondsPerRevolution = 60 / playhead.rpm; // convert RPM to seconds per revolution
         const progress = (elapsed % secondsPerRevolution) / secondsPerRevolution; // 0 to 1
         const newAngle = progress * 360; // 0 to 360 degrees
-        
-        // Check for note triggers
-        checkNoteTriggers(newAngle);
-        
+
+        // Check for note triggers (async)
+        try {
+          await checkNoteTriggers(newAngle);
+        } catch (error) {
+          console.error('Error in note triggers:', error);
+        }
+
         setPlayhead(prev => ({
           ...prev,
           angle: newAngle
         }));
-        
+
         animationRef.current = requestAnimationFrame(animate);
       };
       animationRef.current = requestAnimationFrame(animate);

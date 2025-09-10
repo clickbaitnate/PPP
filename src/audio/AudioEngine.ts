@@ -79,6 +79,25 @@ export class AudioEngine {
     }
   }
 
+  // Play a note (async version for better context handling)
+  async playNoteAsync(noteName: string, duration: number = 0.5, settings: Partial<SynthSettings> = {}): Promise<void> {
+    // Ensure audio context is initialized and resumed
+    if (!this.isInitialized) {
+      await this.initializeAudio();
+    }
+
+    if (!this.context || !this.masterGain) {
+      console.warn('Audio engine not initialized');
+      return;
+    }
+
+    // Always try to resume context
+    await this.resumeContext();
+
+    // Call the original playNote method
+    this.playNote(noteName, duration, settings);
+  }
+
   // Play a note
   playNote(noteName: string, duration: number = 0.5, settings: Partial<SynthSettings> = {}): void {
     if (!this.context || !this.masterGain) {
@@ -235,15 +254,23 @@ export class AudioEngine {
   }
 
   // Play note with polygon synthesizer settings (wavetable synthesis)
-  playNoteWithPolygonSynth(noteName: string, duration: number = 0.5, polygonSettings: PolygonSynthSettings, volume: number = 0.3): void {
+  async playNoteWithPolygonSynth(noteName: string, duration: number = 0.5, polygonSettings: PolygonSynthSettings, volume: number = 0.3): Promise<void> {
+    // Ensure audio context is initialized and resumed
+    if (!this.isInitialized) {
+      await this.initializeAudio();
+    }
+
     if (!this.context || !this.masterGain) {
       console.warn('Audio engine not initialized');
       return;
     }
 
+    // Always try to resume context (safe to call multiple times)
+    await this.resumeContext();
+
     if (!polygonSettings.enabled) {
       // Fall back to basic synth if polygon synth is disabled
-      this.playNote(noteName, duration, { volume });
+      await this.playNoteAsync(noteName, duration, { volume });
       return;
     }
 
