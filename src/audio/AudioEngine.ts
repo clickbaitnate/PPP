@@ -139,7 +139,6 @@ export class AudioEngine {
       const attack = synthSettings.attack;
       const decayTime = synthSettings.decay;
       const sustainLevel = synthSettings.sustain;
-      const releaseTime = synthSettings.release;
 
       // Attack
       gainNode.gain.setValueAtTime(0, now);
@@ -260,7 +259,6 @@ export class AudioEngine {
       // Create oscillator
       const oscillator = this.context.createOscillator();
       const gainNode = this.context.createGain();
-      const filter = this.context.createBiquadFilter();
 
       // Set frequency
       oscillator.frequency.value = frequency;

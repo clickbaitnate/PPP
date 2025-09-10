@@ -187,7 +187,6 @@ export const SettingsPopup: React.FC<SettingsPopupProps> = ({
       const totalDuration = totalBeats * secondsPerBeat; // Total duration in seconds
 
       // Calculate timing based on polygon vertices (assuming 8 vertices max per polygon)
-      const maxVertices = 8;
       const noteDuration = secondsPerBeat * 0.8; // 80% of a beat duration
       const timeBetweenNotes = secondsPerBeat; // One beat between notes
 

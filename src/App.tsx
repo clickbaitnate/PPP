@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './App.css';
 import { audioEngine } from './audio/AudioEngine';
 import { createScaleSystem } from './components/ScaleSystem';
@@ -96,7 +96,6 @@ function App() {
     spacing: 40
   });
   
-  const [editingPolygon, setEditingPolygon] = useState<number | null>(null);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showSettingsPopup, setShowSettingsPopup] = useState(false);
 
@@ -107,8 +106,39 @@ function App() {
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
-  const lastTriggerTimeRef = useRef<number>(0);
   const isManualJumpRef = useRef<boolean>(false);
+
+  // Check for note triggers based on playhead angle
+  const checkNoteTriggers = useCallback((angle: number) => {
+    console.log(`checkNoteTriggers called with angle: ${angle.toFixed(1)}°`);
+    polygons.forEach(polygon => {
+      if (!polygon.active) return;
+
+      // Calculate angle per vertex
+      const anglePerVertex = 360 / polygon.sides;
+
+      // Check each vertex
+      for (let i = 0; i < polygon.sides; i++) {
+        const vertexAngle = (i * anglePerVertex) % 360;
+        const angleDiff = Math.abs(angle - vertexAngle);
+
+        // Trigger if playhead is close to vertex (within 5 degrees)
+        if (angleDiff < 5 || angleDiff > 355) {
+          const note = polygon.notes[i];
+          if (note) {
+            console.log(`🎵 TRIGGERING note: ${note} at angle ${angle.toFixed(1)}°, vertex angle: ${vertexAngle.toFixed(1)}°, diff: ${angleDiff.toFixed(1)}°`);
+            // Resume audio context if needed
+            audioEngine.resumeContext();
+            // Play note using polygon's synthesizer settings
+            audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
+          }
+        }
+      }
+    });
+  }, [polygons, audioEngine]);
+
+  // Initialize scale system
+  const scaleSystem = createScaleSystem();
 
   // Simple animation loop for playhead
   useEffect(() => {
@@ -151,36 +181,8 @@ function App() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [playhead.isPlaying, playhead.rpm, polygons]);
+  }, [playhead.isPlaying, playhead.rpm, polygons, checkNoteTriggers]);
 
-  // Check for note triggers based on playhead angle
-  const checkNoteTriggers = (angle: number) => {
-    console.log(`checkNoteTriggers called with angle: ${angle.toFixed(1)}°`);
-    polygons.forEach(polygon => {
-      if (!polygon.active) return;
-
-      // Calculate angle per vertex
-      const anglePerVertex = 360 / polygon.sides;
-      
-      // Check each vertex
-      for (let i = 0; i < polygon.sides; i++) {
-        const vertexAngle = (i * anglePerVertex) % 360;
-        const angleDiff = Math.abs(angle - vertexAngle);
-        
-        // Trigger if playhead is close to vertex (within 5 degrees)
-        if (angleDiff < 5 || angleDiff > 355) {
-          const note = polygon.notes[i];
-          if (note) {
-            console.log(`🎵 TRIGGERING note: ${note} at angle ${angle.toFixed(1)}°, vertex angle: ${vertexAngle.toFixed(1)}°, diff: ${angleDiff.toFixed(1)}°`);
-            // Resume audio context if needed
-            audioEngine.resumeContext();
-            // Play note using polygon's synthesizer settings
-            audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
-          }
-        }
-      }
-    });
-  };
 
   // Control functions
   const togglePlay = async () => {
@@ -292,17 +294,17 @@ function App() {
   };
 
   // Update all polygon radii when spacing changes
-  const updateAllPolygonRadii = () => {
+  const updateAllPolygonRadii = useCallback(() => {
     setPolygons(prev => prev.map((polygon, index) => ({
       ...polygon,
       radius: 60 + (index * polygonSettings.spacing)
     })));
-  };
+  }, [polygonSettings.spacing]);
 
   // Effect to update polygon radii when spacing changes
   useEffect(() => {
     updateAllPolygonRadii();
-  }, [polygonSettings.spacing]);
+  }, [polygonSettings.spacing, updateAllPolygonRadii]);
 
   // Effect to update polygon notes when scale or root note changes
   useEffect(() => {
@@ -317,17 +319,10 @@ function App() {
     if (updatedSelectedPolygon) {
       setSelectedPolygon(updatedSelectedPolygon);
     }
-  }, [selectedScale, rootNote]);
+  }, [selectedScale, rootNote, polygons, selectedPolygon, scaleSystem]);
 
 
 
-  const updatePolygonRadius = (id: number, newRadius: number) => {
-    setPolygons(prev => prev.map(p => 
-      p.id === id 
-        ? { ...p, radius: newRadius }
-        : p
-    ));
-  };
 
   const openEditPopup = (polygon: Polygon) => {
     setSelectedPolygon(polygon);
@@ -339,8 +334,6 @@ function App() {
     setSelectedPolygon(null);
   };
 
-  // Initialize scale system
-  const scaleSystem = createScaleSystem();
   
   const getScaleNotes = (scaleName: string, root: string = rootNote) => {
     return scaleSystem.getScaleNotes(scaleName, root);
