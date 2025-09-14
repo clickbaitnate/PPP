@@ -169,7 +169,7 @@ function App() {
         animationRef.current = undefined;
       }
     };
-  }, [playhead.isPlaying, checkNoteTriggers]);
+  }, [playhead.isPlaying]);
 
   // Update RPM ref
   useEffect(() => {
@@ -178,11 +178,16 @@ function App() {
 
   // Control functions
   const togglePlay = async () => {
+    console.log('Toggle play clicked');
     await audioEngine.resumeContext();
-    setPlayhead(prev => ({
-      ...prev,
-      isPlaying: !prev.isPlaying
-    }));
+    setPlayhead(prev => {
+      const newState = {
+        ...prev,
+        isPlaying: !prev.isPlaying
+      };
+      console.log('New playhead state:', newState);
+      return newState;
+    });
   };
 
   const resetPlayhead = () => {
@@ -190,6 +195,7 @@ function App() {
   };
 
   const updateRPM = (rpm: number) => {
+    console.log('RPM updated to:', rpm);
     setPlayhead(prev => ({ ...prev, rpm: rpm }));
   };
 
@@ -476,6 +482,13 @@ function App() {
             >
               🔄
             </button>
+            <button
+              className="settings-button"
+              onClick={() => setShowSettingsPopup(true)}
+              title="Global Settings"
+            >
+              ⚙️
+            </button>
           </div>
 
           <div className="settings-section">
@@ -497,7 +510,10 @@ function App() {
               <label className="setting-label">Scale</label>
             <select
               value={selectedScale}
-              onChange={(e) => setSelectedScale(e.target.value)}
+              onChange={(e) => {
+                console.log('Scale changed to:', e.target.value);
+                setSelectedScale(e.target.value);
+              }}
                 className="scale-select"
             >
               <option value="Major">Major</option>
@@ -512,7 +528,10 @@ function App() {
               <label className="setting-label">Root Note</label>
               <select
                 value={rootNote}
-                onChange={(e) => setRootNote(e.target.value)}
+                onChange={(e) => {
+                  console.log('Root note changed to:', e.target.value);
+                  setRootNote(e.target.value);
+                }}
                 className="root-note-select"
               >
                 {['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map(note => (
@@ -557,14 +576,7 @@ function App() {
                   >
                     🎛️
                   </button>
-                                <button
-                    className="settings-button"
-                    onClick={() => setShowSettingsPopup(true)}
-                    title="Settings"
-                  >
-                    ⚙️
-                                </button>
-                          </div>
+                </div>
         </div>
             ))}
             <button className="add-layer" onClick={addPolygon}>
