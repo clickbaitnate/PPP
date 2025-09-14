@@ -62,11 +62,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             cursor: 'pointer',
             fontFamily: 'Comic Sans MS, sans-serif'
           }}
-          onClick={() => {
-            console.log('PLAY BUTTON CLICKED DIRECTLY');
-            alert('PLAY BUTTON WORKS!');
-            onPlayToggle();
-          }}
+          onClick={onPlayToggle}
         >
           {playhead.isPlaying ? '⏸️' : '▶️'}
         </button>
@@ -83,11 +79,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             cursor: 'pointer',
             fontFamily: 'Comic Sans MS, sans-serif'
           }}
-          onClick={() => {
-            console.log('RESET BUTTON CLICKED DIRECTLY');
-            alert('RESET BUTTON WORKS!');
-            onReset();
-          }}
+          onClick={onReset}
         >
           🔄
         </button>
@@ -133,11 +125,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             max="300"
             step="10"
             value={playhead.rpm}
-            onChange={(e) => {
-              console.log('RPM SLIDER CHANGED DIRECTLY:', e.target.value);
-              alert('RPM SLIDER WORKS! Value: ' + e.target.value);
-              onRPMChange(Number(e.target.value));
-            }}
+            onChange={(e) => onRPMChange(Number(e.target.value))}
             style={{
               width: '100%',
               height: '20px',
@@ -169,11 +157,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           }}>Scale</label>
           <select
             value={selectedScale}
-            onChange={(e) => {
-              console.log('SCALE DROPDOWN CHANGED DIRECTLY:', e.target.value);
-              alert('SCALE DROPDOWN WORKS! Value: ' + e.target.value);
-              onScaleChange(e.target.value);
-            }}
+            onChange={(e) => onScaleChange(e.target.value)}
             style={{
               width: '100%',
               padding: '6px',
@@ -208,11 +192,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           }}>Root Note</label>
           <select
             value={rootNote}
-            onChange={(e) => {
-              console.log('ROOT NOTE DROPDOWN CHANGED DIRECTLY:', e.target.value);
-              alert('ROOT NOTE DROPDOWN WORKS! Value: ' + e.target.value);
-              onRootNoteChange(e.target.value);
-            }}
+            onChange={(e) => onRootNoteChange(e.target.value)}
             style={{
               width: '100%',
               padding: '6px',
@@ -269,26 +249,63 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         </div>
       </div>
 
-      <div className="layer-list">
+      <div style={{
+        marginTop: '15px'
+      }}>
         {polygons.map(polygon => (
-          <div key={polygon.id} className="layer-item">
-            <div className="layer-info">
-              <span className="layer-name">{polygon.sides}-gon</span>
-              <span className="layer-notes">{polygon.notes.filter(n => n).length} notes</span>
+          <div key={polygon.id} style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '8px',
+            marginBottom: '8px',
+            background: 'rgba(0, 0, 0, 0.5)',
+            border: '1px solid #00ff00',
+            borderRadius: '4px'
+          }}>
+            <div>
+              <span style={{
+                color: '#00ff00',
+                fontSize: '12px',
+                fontWeight: 'bold'
+              }}>{polygon.sides}-gon</span>
+              <span style={{
+                color: '#00ff00',
+                fontSize: '10px',
+                marginLeft: '8px'
+              }}>{polygon.notes.filter(n => n).length} notes</span>
             </div>
-            <div className="layer-controls">
-              <button
-                className="edit-button"
-                onClick={() => onEditPolygon(polygon)}
-                title="Edit Synth"
-              >
-                🎛️
-              </button>
-            </div>
+            <button
+              style={{
+                padding: '4px 8px',
+                background: '#333333',
+                border: '1px solid #00ff00',
+                color: '#00ff00',
+                fontSize: '12px',
+                cursor: 'pointer',
+                borderRadius: '3px'
+              }}
+              onClick={() => onEditPolygon(polygon)}
+              title="Edit Synth"
+            >
+              🎛️
+            </button>
           </div>
         ))}
-        <button className="add-layer" onClick={onAddPolygon}>
-          <span className="button-emoji">+</span> ADD POLYGON
+        <button style={{
+          width: '100%',
+          padding: '10px',
+          background: 'linear-gradient(180deg, #666666, #333333)',
+          border: '2px solid #00ff00',
+          borderStyle: 'outset',
+          color: '#00ff00',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          fontFamily: 'Courier New, monospace',
+          marginTop: '10px'
+        }} onClick={onAddPolygon}>
+          <span>+</span> ADD POLYGON
         </button>
       </div>
     </div>
