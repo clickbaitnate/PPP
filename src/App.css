@@ -138,7 +138,7 @@ body {
   flex: 1;
   position: relative;
   background: #000000;
-  background-image: 
+  background-image:
     radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
     radial-gradient(1px 1px at 40px 70px, #00ff00, transparent),
     radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
@@ -157,7 +157,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid #00ff00;
+  border: 5px solid #ffff00; /* TEMP DEBUG: Bright yellow border */
   border-style: groove;
   margin: 10px;
   overflow: hidden;
@@ -239,7 +239,7 @@ body {
   background-size: 250px 70px;
   animation: starfield 30s linear infinite;
   padding: 15px;
-  border: 3px solid #00ff00;
+  border: 5px solid #ff00ff; /* TEMP DEBUG: Bright magenta border */
   border-style: ridge;
   border-left: none;
   display: flex;
