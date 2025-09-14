@@ -417,7 +417,10 @@ function App() {
           stroke={polygon.color}
           strokeWidth="2"
           className="polygon-vertex canvas-vertex"
-          onClick={() => cycleNote(polygon.id, i)}
+          onClick={() => {
+            console.log('Polygon vertex clicked:', polygon.id, i);
+            cycleNote(polygon.id, i);
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
             deleteNote(polygon.id, i);

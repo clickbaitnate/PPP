@@ -161,7 +161,7 @@ body {
   border-style: groove;
   margin: 10px;
   overflow: hidden;
-  pointer-events: none; /* Prevent canvas from blocking control panel clicks */
+  /* Removed pointer-events: none to allow polygon vertex clicks */
 }
 
 .canvas-container::before {
@@ -693,6 +693,7 @@ body {
 
 .polygon-vertex {
   cursor: pointer;
+  pointer-events: auto;
   transition: all 0.2s ease;
 }
 
