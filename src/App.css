@@ -251,7 +251,7 @@ body {
   box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
   position: relative;
   overflow: hidden;
-  z-index: 10;
+  z-index: 9999; /* TEMP: Very high z-index to test if something is covering */
 }
 
 .control-panel::before {
