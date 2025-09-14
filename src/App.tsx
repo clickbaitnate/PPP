@@ -403,6 +403,47 @@ function App() {
     updateAllPolygonRadii();
   }, [polygonSettings.spacing, updateAllPolygonRadii]);
 
+  // Delete a polygon
+  const handleDeletePolygon = useCallback((polygonId: number) => {
+    console.log('Deleting polygon:', polygonId);
+    setPolygons(prev => {
+      const filtered = prev.filter(p => p.id !== polygonId);
+      // Update radii for remaining polygons
+      return filtered.map((polygon, index) => ({
+        ...polygon,
+        radius: 60 + (index * polygonSettings.spacing)
+      }));
+    });
+  }, [polygonSettings.spacing]);
+
+  // Change the number of sides for a polygon
+  const handleChangePolygonSides = useCallback((polygonId: number, newSides: number) => {
+    console.log('Changing polygon', polygonId, 'to', newSides, 'sides');
+    setPolygons(prev => prev.map(polygon => {
+      if (polygon.id !== polygonId) return polygon;
+
+      const currentNotes = [...polygon.notes];
+      const newNotes: (string | null)[] = [];
+
+      // Adjust notes array based on new number of sides
+      for (let i = 0; i < newSides; i++) {
+        if (i < currentNotes.length) {
+          // Keep existing notes
+          newNotes.push(currentNotes[i]);
+        } else {
+          // Add null for new vertices
+          newNotes.push(null);
+        }
+      }
+
+      return {
+        ...polygon,
+        sides: newSides,
+        notes: newNotes
+      };
+    }));
+  }, []);
+
   // Render components
   const renderPolygon = (polygon: Polygon) => {
     const centerX = 250;
@@ -556,6 +597,8 @@ function App() {
           onSettingsClick={handleSettingsClick}
           onAddPolygon={handleAddPolygon}
           onEditPolygon={handleEditPolygon}
+          onDeletePolygon={handleDeletePolygon}
+          onChangePolygonSides={handleChangePolygonSides}
         />
       </main>
 

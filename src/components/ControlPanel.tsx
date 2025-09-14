@@ -16,6 +16,8 @@ interface ControlPanelProps {
   onSettingsClick: () => void;
   onAddPolygon: () => void;
   onEditPolygon: (polygon: Polygon) => void;
+  onDeletePolygon: (polygonId: number) => void;
+  onChangePolygonSides: (polygonId: number, sides: number) => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -33,6 +35,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onSettingsClick,
   onAddPolygon,
   onEditPolygon,
+  onDeletePolygon,
+  onChangePolygonSides,
 }) => {
   return (
     <div style={{
@@ -261,41 +265,99 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         {polygons.map(polygon => (
           <div key={polygon.id} style={{
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            flexDirection: 'column',
+            gap: '8px',
             padding: '8px',
             marginBottom: '8px',
             background: 'rgba(0, 0, 0, 0.5)',
             border: '1px solid #00ff00',
             borderRadius: '4px'
           }}>
-            <div>
-              <span style={{
-                color: '#00ff00',
-                fontSize: '12px',
-                fontWeight: 'bold'
-              }}>{polygon.sides}-gon</span>
-              <span style={{
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div>
+                <span style={{
+                  color: '#00ff00',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}>{polygon.sides}-gon</span>
+                <span style={{
+                  color: '#00ff00',
+                  fontSize: '10px',
+                  marginLeft: '8px'
+                }}>{polygon.notes.filter(n => n).length} notes</span>
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: '4px'
+              }}>
+                <button
+                  style={{
+                    padding: '4px 6px',
+                    background: '#333333',
+                    border: '1px solid #00ff00',
+                    color: '#00ff00',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    borderRadius: '3px'
+                  }}
+                  onClick={() => onEditPolygon(polygon)}
+                  title="Edit Synth"
+                >
+                  🎛️
+                </button>
+                <button
+                  style={{
+                    padding: '4px 6px',
+                    background: '#cc0000',
+                    border: '1px solid #ff4444',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    borderRadius: '3px'
+                  }}
+                  onClick={() => onDeletePolygon(polygon.id)}
+                  title="Delete Polygon"
+                  disabled={polygons.length <= 1}
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }}>
+              <label style={{
                 color: '#00ff00',
                 fontSize: '10px',
-                marginLeft: '8px'
-              }}>{polygon.notes.filter(n => n).length} notes</span>
+                fontWeight: 'bold'
+              }}>Sides:</label>
+              <select
+                value={polygon.sides}
+                onChange={(e) => onChangePolygonSides(polygon.id, Number(e.target.value))}
+                style={{
+                  width: '100%',
+                  padding: '4px',
+                  background: '#000000',
+                  border: '1px solid #00ff00',
+                  color: '#00ff00',
+                  fontSize: '11px',
+                  fontFamily: 'Courier New, monospace',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                {[3, 4, 5, 6, 7, 8, 9, 10, 12].map(sides => (
+                  <option key={sides} value={sides}>{sides}-gon</option>
+                ))}
+              </select>
             </div>
-            <button
-              style={{
-                padding: '4px 8px',
-                background: '#333333',
-                border: '1px solid #00ff00',
-                color: '#00ff00',
-                fontSize: '12px',
-                cursor: 'pointer',
-                borderRadius: '3px'
-              }}
-              onClick={() => onEditPolygon(polygon)}
-              title="Edit Synth"
-            >
-              🎛️
-            </button>
           </div>
         ))}
         <button style={{
