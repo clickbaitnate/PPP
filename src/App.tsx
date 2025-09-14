@@ -472,18 +472,18 @@ function App() {
           <div className="transport-controls">
             <button
               className="play-button"
-              onClick={() => {
-                console.log('Play button clicked - simple test');
-                alert('Play button clicked!');
+              onMouseDown={() => {
+                console.log('Play button mouse down - test');
+                alert('Play button mouse down!');
               }}
             >
               {playhead.isPlaying ? '⏸️' : '▶️'}
             </button>
             <button
               className="reset-button"
-              onClick={() => {
-                console.log('Reset button clicked - simple test');
-                alert('Reset button clicked!');
+              onMouseDown={() => {
+                console.log('Reset button mouse down - test');
+                alert('Reset button mouse down!');
               }}
             >
               🔄
@@ -506,9 +506,9 @@ function App() {
                 max="300"
                 step="10"
                 value={playhead.rpm}
-                onChange={(e) => {
-                  console.log('RPM slider changed - simple test:', e.target.value);
-                  alert('RPM changed to: ' + e.target.value);
+                onMouseDown={() => {
+                  console.log('RPM slider mouse down - test');
+                  alert('RPM slider mouse down!');
                 }}
                 className="rpm-slider"
               />
@@ -519,9 +519,9 @@ function App() {
               <label className="setting-label">Scale</label>
             <select
               value={selectedScale}
-              onChange={(e) => {
-                console.log('Scale dropdown clicked - simple test:', e.target.value);
-                alert('Scale changed to: ' + e.target.value);
+              onMouseDown={() => {
+                console.log('Scale dropdown mouse down - test');
+                alert('Scale dropdown mouse down!');
               }}
                 className="scale-select"
             >
@@ -537,9 +537,9 @@ function App() {
               <label className="setting-label">Root Note</label>
               <select
                 value={rootNote}
-                onChange={(e) => {
-                  console.log('Root note dropdown clicked - simple test:', e.target.value);
-                  alert('Root note changed to: ' + e.target.value);
+                onMouseDown={() => {
+                  console.log('Root note dropdown mouse down - test');
+                  alert('Root note dropdown mouse down!');
                 }}
                 className="root-note-select"
               >
