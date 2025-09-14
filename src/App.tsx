@@ -4,27 +4,8 @@ import { audioEngine } from './audio/AudioEngine';
 import { createScaleSystem } from './components/ScaleSystem';
 import SynthPanel from './components/SynthPanel';
 import { SettingsPopup } from './components/SettingsPopup';
-
-// Types for polygon system
-interface Polygon {
-  id: number;
-  sides: number;
-  radius: number;
-  color: string;
-  active: boolean;
-  notes: (string | null)[];
-  synthSettings: any;
-}
-
-interface PlayheadState {
-  angle: number;
-  isPlaying: boolean;
-  rpm: number;
-}
-
-interface PolygonSettings {
-  spacing: number;
-}
+import ControlPanel from './components/ControlPanel';
+import { Polygon, PlayheadState, PolygonSettings } from './types';
 
 function App() {
   // State management
@@ -320,6 +301,46 @@ function App() {
     setSelectedPolygon(null);
   };
 
+  // Simple handlers for ControlPanel component
+  const handlePlayToggle = () => {
+    togglePlay();
+  };
+
+  const handleReset = () => {
+    resetPlayhead();
+  };
+
+  const handleRPMChange = (rpm: number) => {
+    updateRPM(rpm);
+  };
+
+  const handleScaleChange = (scale: string) => {
+    setSelectedScale(scale);
+  };
+
+  const handleRootNoteChange = (note: string) => {
+    setRootNote(note);
+  };
+
+  const handleSpacingChange = (spacing: number) => {
+    setPolygonSettings(prev => ({
+      ...prev,
+      spacing: spacing
+    }));
+  };
+
+  const handleSettingsClick = () => {
+    setShowSettingsPopup(true);
+  };
+
+  const handleAddPolygon = () => {
+    addPolygon();
+  };
+
+  const handleEditPolygon = (polygon: Polygon) => {
+    openEditPopup(polygon);
+  };
+
   const updatePolygonSynthSettings = (polygonId: number, synthSettings: any) => {
     setPolygons(prev => prev.map(p =>
       p.id === polygonId
@@ -468,131 +489,22 @@ function App() {
           </div>
                     </div>
                     
-        <div className="control-panel">
-          <div className="transport-controls">
-            <button
-              className="play-button"
-              onClick={() => {
-                console.log('Play button clicked!');
-                alert('Play button works!');
-              }}
-            >
-              {playhead.isPlaying ? '⏸️' : '▶️'}
-            </button>
-            <button
-              className="reset-button"
-              onClick={() => {
-                console.log('Reset button clicked!');
-                alert('Reset button works!');
-              }}
-            >
-              🔄
-            </button>
-            <button
-              className="settings-button"
-              onClick={() => setShowSettingsPopup(true)}
-              title="Global Settings"
-            >
-              ⚙️
-            </button>
-          </div>
-
-          <div className="settings-section">
-            <div className="setting-group">
-              <label className="setting-label">RPM</label>
-            <input
-              type="range"
-              min="30"
-              max="300"
-              step="10"
-              value={playhead.rpm}
-              onChange={(e) => {
-                console.log('RPM slider changed:', e.target.value);
-                alert('RPM slider works! Value: ' + e.target.value);
-              }}
-              className="rpm-slider"
-            />
-              <span className="control-value">{playhead.rpm}</span>
-          </div>
-
-            <div className="setting-group">
-              <label className="setting-label">Scale</label>
-            <select
-              value={selectedScale}
-              onChange={(e) => {
-                console.log('Scale changed:', e.target.value);
-                alert('Scale selector works! Value: ' + e.target.value);
-              }}
-              className="scale-select"
-            >
-              <option value="Major">Major</option>
-              <option value="Minor">Minor</option>
-              <option value="Pentatonic">Pentatonic</option>
-              <option value="Dorian">Dorian</option>
-              <option value="Mixolydian">Mixolydian</option>
-            </select>
-          </div>
-
-            <div className="setting-group">
-              <label className="setting-label">Root Note</label>
-              <select
-                value={rootNote}
-                onChange={(e) => {
-                  console.log('Root note changed:', e.target.value);
-                  alert('Root note selector works! Value: ' + e.target.value);
-                }}
-                className="root-note-select"
-              >
-                {['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map(note => (
-                  <option key={note} value={note}>{note}</option>
-                ))}
-              </select>
-          </div>
-
-            <div className="setting-group">
-              <label className="setting-label">Spacing</label>
-              <input
-                type="range"
-                min="20"
-                max="100"
-                step="5"
-                value={polygonSettings.spacing}
-                            onChange={(e) => {
-                  const newValue = Number(e.target.value);
-                  setPolygonSettings(prev => ({
-                    ...prev,
-                    spacing: newValue
-                  }));
-                            }}
-                className="spacing-slider"
-              />
-              <span className="control-value">{polygonSettings.spacing}</span>
-                        </div>
-                        </div>
-
-          <div className="layer-list">
-            {polygons.map(polygon => (
-              <div key={polygon.id} className="layer-item">
-                <div className="layer-info">
-                  <span className="layer-name">{polygon.sides}-gon</span>
-                  <span className="layer-notes">{polygon.notes.filter(n => n).length} notes</span>
-                        </div>
-                <div className="layer-controls">
-                  <button
-                    className="edit-button"
-                    onClick={() => openEditPopup(polygon)}
-                    title="Edit Synth"
-                  >
-                    🎛️
-                  </button>
-                </div>
-        </div>
-            ))}
-            <button className="add-layer" onClick={addPolygon}>
-              <span className="button-emoji">+</span> ADD POLYGON
-            </button>
-                            </div>
-                        </div>
+        <ControlPanel
+          playhead={playhead}
+          selectedScale={selectedScale}
+          rootNote={rootNote}
+          polygonSettings={polygonSettings}
+          polygons={polygons}
+          onPlayToggle={handlePlayToggle}
+          onReset={handleReset}
+          onRPMChange={handleRPMChange}
+          onScaleChange={handleScaleChange}
+          onRootNoteChange={handleRootNoteChange}
+          onSpacingChange={handleSpacingChange}
+          onSettingsClick={handleSettingsClick}
+          onAddPolygon={handleAddPolygon}
+          onEditPolygon={handleEditPolygon}
+        />
       </main>
 
       {/* Edit Popup */}
