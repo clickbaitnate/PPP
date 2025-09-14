@@ -81,7 +81,7 @@ function App() {
   };
 
   // Check for note triggers
-  const checkNoteTriggers = useCallback((angle: number, lastAngle: number) => {
+  const checkNoteTriggers = useCallback((angle: number) => {
     polygons.forEach(polygon => {
       if (!polygon.active) return;
 
@@ -89,31 +89,26 @@ function App() {
 
       for (let i = 0; i < polygon.sides; i++) {
         const vertexAngle = (i * anglePerVertex) % 360;
+        const angleDiff = Math.min(
+          Math.abs(angle - vertexAngle),
+          Math.abs(angle - vertexAngle + 360),
+          Math.abs(angle - vertexAngle - 360)
+        );
 
-        // Check if the playhead has crossed this vertex angle
-        let crossedVertex = false;
-
-        if (lastAngle < angle) {
-          // Normal progression (no wraparound)
-          crossedVertex = (lastAngle < vertexAngle && angle >= vertexAngle);
-        } else {
-          // Wraparound case (angle went from high to low)
-          crossedVertex = (lastAngle < vertexAngle || angle >= vertexAngle);
-        }
-
-        if (crossedVertex) {
+        // Wider trigger zone: 10 degrees instead of 5
+        if (angleDiff < 10) {
           const note = polygon.notes[i];
           if (note) {
             const noteId = `${polygon.id}_${i}_${note}`;
             const now = performance.now();
             const lastTrigger = lastTriggerTimeRef.current[noteId];
-            // Use a more generous minimum interval based on current RPM
+            // More generous minimum interval
             const currentRPM = rpmRef.current;
-            const minInterval = Math.max(100, (60 / currentRPM) * 1000 / 4);
+            const minInterval = Math.max(200, (60 / currentRPM) * 1000 / 2);
 
             if (!lastTrigger || now - lastTrigger > minInterval) {
               lastTriggerTimeRef.current[noteId] = now;
-              console.log(`🎵 Playing note: ${note} at vertex ${i} (angle: ${vertexAngle.toFixed(1)}°, playhead: ${angle.toFixed(1)}°)`);
+              console.log(`🎵 Playing note: ${note} at vertex ${i} (angle: ${vertexAngle.toFixed(1)}°, playhead: ${angle.toFixed(1)}°, diff: ${angleDiff.toFixed(1)}°)`);
               audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
             }
           }
@@ -137,7 +132,6 @@ function App() {
     }
 
     const startTime = performance.now();
-    let lastAngle = playhead.angle;
 
     const animate = (currentTime: number) => {
       const elapsed = (currentTime - startTime) / 1000;
@@ -146,14 +140,13 @@ function App() {
       const progress = revolutions - Math.floor(revolutions);
       const newAngle = progress * 360;
 
-        checkNoteTriggers(newAngle, lastAngle);
+        checkNoteTriggers(newAngle);
 
         setPlayhead(prev => ({
           ...prev,
           angle: newAngle
         }));
 
-        lastAngle = newAngle;
         animationRef.current = requestAnimationFrame(animate);
       };
 
@@ -165,7 +158,7 @@ function App() {
         animationRef.current = undefined;
       }
     };
-  }, [playhead.isPlaying, checkNoteTriggers, playhead.angle]);
+  }, [playhead.isPlaying, checkNoteTriggers]);
 
   // Update RPM ref
   useEffect(() => {
