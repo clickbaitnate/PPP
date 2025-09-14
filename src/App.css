@@ -161,6 +161,7 @@ body {
   border-style: groove;
   margin: 10px;
   overflow: hidden;
+  pointer-events: none; /* Prevent canvas from blocking control panel clicks */
 }
 
 .canvas-container::before {
@@ -170,7 +171,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     radial-gradient(1px 1px at 30px 20px, #ffffff, transparent),
     radial-gradient(1px 1px at 70px 50px, #00ff00, transparent),
     radial-gradient(1px 1px at 110px 80px, #ffffff, transparent),
@@ -181,6 +182,7 @@ body {
   background-size: 260px 100px;
   animation: starfield 18s linear infinite reverse;
   opacity: 0.6;
+  pointer-events: none; /* Prevent overlay from blocking control panel clicks */
 }
 
 .polygon-canvas {
@@ -222,6 +224,7 @@ body {
 .control-panel {
   width: 250px;
   flex-shrink: 0; /* Prevent control panel from shrinking */
+  pointer-events: auto; /* Ensure control panel can receive clicks */
   background: #000000;
   background-image:
     radial-gradient(1px 1px at 15px 25px, #ffffff, transparent),
@@ -289,6 +292,7 @@ body {
   font-family: 'Comic Sans MS', sans-serif;
   text-shadow: 1px 1px 0px #ffffff;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  pointer-events: auto; /* Ensure buttons can receive clicks */
 }
 
 .play-button:hover {
@@ -349,6 +353,7 @@ body {
   position: relative;
   -webkit-appearance: none;
   appearance: none;
+  pointer-events: auto; /* Ensure inputs can receive clicks */
 }
 
 .rpm-control input:focus {
@@ -468,6 +473,7 @@ body {
   position: relative;
   cursor: pointer;
   width: 100%;
+  pointer-events: auto; /* Ensure select can receive clicks */
 }
 
 .scale-selector:focus {
