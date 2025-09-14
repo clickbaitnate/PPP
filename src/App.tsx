@@ -86,8 +86,78 @@ function App() {
   const lastTriggerTimeRef = useRef<{ [key: string]: number }>({});
   const rpmRef = useRef<number>(playhead.rpm);
 
+  // Test refs for direct DOM event listeners
+  const playButtonRef = useRef<HTMLButtonElement>(null);
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
+  const rpmSliderRef = useRef<HTMLInputElement>(null);
+  const scaleSelectRef = useRef<HTMLSelectElement>(null);
+  const rootNoteSelectRef = useRef<HTMLSelectElement>(null);
+
   // Initialize scale system
   const scaleSystem = createScaleSystem();
+
+  // Test direct DOM event listeners
+  useEffect(() => {
+    const playButton = playButtonRef.current;
+    const resetButton = resetButtonRef.current;
+    const rpmSlider = rpmSliderRef.current;
+    const scaleSelect = scaleSelectRef.current;
+    const rootNoteSelect = rootNoteSelectRef.current;
+
+    const handlePlayClick = () => {
+      console.log('DIRECT DOM: Play button clicked!');
+      alert('DIRECT DOM: Play button clicked!');
+    };
+
+    const handleResetClick = () => {
+      console.log('DIRECT DOM: Reset button clicked!');
+      alert('DIRECT DOM: Reset button clicked!');
+    };
+
+    const handleRPMChange = () => {
+      console.log('DIRECT DOM: RPM slider changed!');
+      alert('DIRECT DOM: RPM slider changed!');
+    };
+
+    const handleScaleChange = () => {
+      console.log('DIRECT DOM: Scale dropdown changed!');
+      alert('DIRECT DOM: Scale dropdown changed!');
+    };
+
+    const handleRootNoteChange = () => {
+      console.log('DIRECT DOM: Root note dropdown changed!');
+      alert('DIRECT DOM: Root note dropdown changed!');
+    };
+
+    if (playButton) {
+      playButton.addEventListener('click', handlePlayClick);
+      console.log('Attached direct DOM listener to play button');
+    }
+    if (resetButton) {
+      resetButton.addEventListener('click', handleResetClick);
+      console.log('Attached direct DOM listener to reset button');
+    }
+    if (rpmSlider) {
+      rpmSlider.addEventListener('input', handleRPMChange);
+      console.log('Attached direct DOM listener to RPM slider');
+    }
+    if (scaleSelect) {
+      scaleSelect.addEventListener('change', handleScaleChange);
+      console.log('Attached direct DOM listener to scale select');
+    }
+    if (rootNoteSelect) {
+      rootNoteSelect.addEventListener('change', handleRootNoteChange);
+      console.log('Attached direct DOM listener to root note select');
+    }
+
+    return () => {
+      if (playButton) playButton.removeEventListener('click', handlePlayClick);
+      if (resetButton) resetButton.removeEventListener('click', handleResetClick);
+      if (rpmSlider) rpmSlider.removeEventListener('input', handleRPMChange);
+      if (scaleSelect) scaleSelect.removeEventListener('change', handleScaleChange);
+      if (rootNoteSelect) rootNoteSelect.removeEventListener('change', handleRootNoteChange);
+    };
+  }, []);
 
   // Get scale notes
   const getScaleNotes = (scaleName: string, root: string = rootNote) => {
@@ -471,6 +541,7 @@ function App() {
         <div className="control-panel">
           <div className="transport-controls">
             <button
+              ref={playButtonRef}
               className="play-button"
               onMouseDown={() => {
                 console.log('Play button mouse down - test');
@@ -480,6 +551,7 @@ function App() {
               {playhead.isPlaying ? '⏸️' : '▶️'}
             </button>
             <button
+              ref={resetButtonRef}
               className="reset-button"
               onMouseDown={() => {
                 console.log('Reset button mouse down - test');
@@ -501,6 +573,7 @@ function App() {
             <div className="setting-group">
               <label className="setting-label">RPM</label>
             <input
+              ref={rpmSliderRef}
               type="range"
                 min="30"
                 max="300"
@@ -518,6 +591,7 @@ function App() {
             <div className="setting-group">
               <label className="setting-label">Scale</label>
             <select
+              ref={scaleSelectRef}
               value={selectedScale}
               onMouseDown={() => {
                 console.log('Scale dropdown mouse down - test');
@@ -536,6 +610,7 @@ function App() {
             <div className="setting-group">
               <label className="setting-label">Root Note</label>
               <select
+                ref={rootNoteSelectRef}
                 value={rootNote}
                 onMouseDown={() => {
                   console.log('Root note dropdown mouse down - test');
