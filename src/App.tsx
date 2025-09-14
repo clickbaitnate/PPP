@@ -177,9 +177,9 @@ function App() {
   }, [playhead.rpm]);
 
   // Control functions
-  const togglePlay = async () => {
-    console.log('Toggle play clicked');
-    await audioEngine.resumeContext();
+  const togglePlay = () => {
+    console.log('Toggle play clicked - synchronous version');
+    audioEngine.resumeContext().catch(err => console.error('Audio context error:', err));
     setPlayhead(prev => {
       const newState = {
         ...prev,
@@ -473,8 +473,8 @@ function App() {
             <button
               className="play-button"
               onClick={() => {
-                console.log('Play button clicked!');
-                togglePlay();
+                console.log('Play button clicked - simple test');
+                alert('Play button clicked!');
               }}
             >
               {playhead.isPlaying ? '⏸️' : '▶️'}
@@ -482,8 +482,8 @@ function App() {
             <button
               className="reset-button"
               onClick={() => {
-                console.log('Reset button clicked!');
-                resetPlayhead();
+                console.log('Reset button clicked - simple test');
+                alert('Reset button clicked!');
               }}
             >
               🔄
@@ -507,8 +507,8 @@ function App() {
                 step="10"
                 value={playhead.rpm}
                 onChange={(e) => {
-                  console.log('RPM slider changed:', e.target.value);
-                  updateRPM(Number(e.target.value));
+                  console.log('RPM slider changed - simple test:', e.target.value);
+                  alert('RPM changed to: ' + e.target.value);
                 }}
                 className="rpm-slider"
               />
@@ -520,8 +520,8 @@ function App() {
             <select
               value={selectedScale}
               onChange={(e) => {
-                console.log('Scale dropdown clicked, value:', e.target.value);
-                setSelectedScale(e.target.value);
+                console.log('Scale dropdown clicked - simple test:', e.target.value);
+                alert('Scale changed to: ' + e.target.value);
               }}
                 className="scale-select"
             >
@@ -538,8 +538,8 @@ function App() {
               <select
                 value={rootNote}
                 onChange={(e) => {
-                  console.log('Root note dropdown clicked, value:', e.target.value);
-                  setRootNote(e.target.value);
+                  console.log('Root note dropdown clicked - simple test:', e.target.value);
+                  alert('Root note changed to: ' + e.target.value);
                 }}
                 className="root-note-select"
               >
