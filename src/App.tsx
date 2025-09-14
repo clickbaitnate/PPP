@@ -101,6 +101,7 @@ function App() {
 
             if (!lastTrigger || now - lastTrigger > minInterval) {
               lastTriggerTimeRef.current[noteId] = now;
+              console.log(`🎵 Playing note: ${note} at vertex ${i} (angle: ${vertexAngle.toFixed(1)}°, playhead: ${angle.toFixed(1)}°)`);
               audioEngine.playNoteWithPolygonSynth(note, 1.0, polygon.synthSettings, 0.5);
             }
           }
@@ -228,10 +229,13 @@ function App() {
     if (!polygon) return;
     
     const scale = getScaleNotes(selectedScale);
+    console.log('🎼 Available scale notes:', scale);
     const currentNote = polygon.notes[vertexIndex];
+    console.log(`🔄 Cycling note at vertex ${vertexIndex}: ${currentNote} → ?`);
     const currentIndex = currentNote ? scale.indexOf(currentNote) : -1;
     const nextIndex = (currentIndex + 1) % scale.length;
     const nextNote = scale[nextIndex];
+    console.log(`✅ Set note at vertex ${vertexIndex} to: ${nextNote}`);
     
     setPolygons(prev => prev.map(p => {
       if (p.id === polygonId) {
