@@ -157,7 +157,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           }}>Scale</label>
           <select
             value={selectedScale}
-            onChange={(e) => onScaleChange(e.target.value)}
+            onChange={(e) => {
+              console.log('Scale selector changed to:', e.target.value);
+              onScaleChange(e.target.value);
+            }}
             style={{
               width: '100%',
               padding: '6px',
@@ -192,7 +195,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           }}>Root Note</label>
           <select
             value={rootNote}
-            onChange={(e) => onRootNoteChange(e.target.value)}
+            onChange={(e) => {
+              console.log('Root note selector changed to:', e.target.value);
+              onRootNoteChange(e.target.value);
+            }}
             style={{
               width: '100%',
               padding: '6px',
