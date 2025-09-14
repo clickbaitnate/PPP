@@ -319,10 +319,36 @@ function App() {
   };
 
   const handleScaleChange = (scale: string) => {
+    console.log(`🎼 Changing scale from ${selectedScale} to ${scale}`);
+
+    // Update existing polygon notes to match the new scale
+    const { updatedPolygons, updatedSelectedPolygon } = scaleSystem.updatePolygonNotesForNewScale(
+      polygons,
+      selectedPolygon,
+      scale,
+      rootNote
+    );
+
+    console.log(`🔄 Updated ${updatedPolygons.length} polygons to match new scale`);
+    setPolygons(updatedPolygons);
+    setSelectedPolygon(updatedSelectedPolygon);
     setSelectedScale(scale);
   };
 
   const handleRootNoteChange = (note: string) => {
+    console.log(`🎵 Changing root note from ${rootNote} to ${note}`);
+
+    // Update existing polygon notes to match the new root note
+    const { updatedPolygons, updatedSelectedPolygon } = scaleSystem.updatePolygonNotesForNewScale(
+      polygons,
+      selectedPolygon,
+      selectedScale,
+      note
+    );
+
+    console.log(`🔄 Updated ${updatedPolygons.length} polygons to match new root note`);
+    setPolygons(updatedPolygons);
+    setSelectedPolygon(updatedSelectedPolygon);
     setRootNote(note);
   };
 
