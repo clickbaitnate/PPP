@@ -449,6 +449,18 @@ function App() {
           className="polygon-vertex canvas-vertex"
           onClick={() => {
             console.log('Polygon vertex clicked:', polygon.id, i);
+
+            // Get the current note before cycling
+            const currentNote = polygon.notes[i];
+            console.log('Current note before cycling:', currentNote);
+
+            // Preview the current note immediately
+            if (currentNote) {
+              console.log('🎵 Previewing current note:', currentNote);
+              audioEngine.playNote(currentNote, 0.5, { volume: 0.3 });
+            }
+
+            // Then cycle to the next note
             cycleNote(polygon.id, i);
           }}
           onContextMenu={(e) => {
