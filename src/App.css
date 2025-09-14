@@ -157,7 +157,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 5px solid #ffff00; /* TEMP DEBUG: Bright yellow border */
+  border: 3px solid #00ff00;
   border-style: groove;
   margin: 10px;
   overflow: hidden;
@@ -243,7 +243,7 @@ body {
   background-size: 250px 70px;
   animation: starfield 30s linear infinite;
   padding: 15px;
-  border: 5px solid #ff00ff; /* TEMP DEBUG: Bright magenta border */
+  border: 3px solid #00ff00;
   border-style: ridge;
   display: flex;
   flex-direction: column;
@@ -251,7 +251,7 @@ body {
   box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
   position: relative;
   overflow: hidden;
-  z-index: 9999; /* TEMP: Very high z-index to test if something is covering */
+  z-index: 10;
 }
 
 .control-panel::before {
