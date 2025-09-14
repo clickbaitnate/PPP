@@ -130,7 +130,7 @@ body {
 .app-main {
   flex: 1;
   display: flex;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow control panel to be fully visible */
 }
 
 /* Canvas Container */
@@ -221,6 +221,7 @@ body {
 /* Control Panel */
 .control-panel {
   width: 250px;
+  flex-shrink: 0; /* Prevent control panel from shrinking */
   background: #000000;
   background-image:
     radial-gradient(1px 1px at 15px 25px, #ffffff, transparent),
@@ -241,7 +242,6 @@ body {
   padding: 15px;
   border: 5px solid #ff00ff; /* TEMP DEBUG: Bright magenta border */
   border-style: ridge;
-  border-left: none;
   display: flex;
   flex-direction: column;
   gap: 15px;
