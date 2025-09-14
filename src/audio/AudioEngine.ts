@@ -248,9 +248,11 @@ export class AudioEngine {
     }
 
     // Always try to resume context (safe to call multiple times)
-    this.resumeContext().catch(error => {
-      console.error('Error resuming audio context:', error);
-    });
+    if (this.context && this.context.state === 'suspended') {
+      this.context.resume().catch(error => {
+        console.error('Error resuming audio context:', error);
+      });
+    }
 
     if (!polygonSettings.enabled) {
       // Fall back to basic synth if polygon synth is disabled
