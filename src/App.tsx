@@ -132,10 +132,15 @@ function App() {
     if (playButton) {
       playButton.addEventListener('click', handlePlayClick);
       console.log('Attached direct DOM listener to play button');
+      const rect = playButton.getBoundingClientRect();
+      console.log('Play button rect:', rect);
+      console.log('Play button styles:', window.getComputedStyle(playButton));
     }
     if (resetButton) {
       resetButton.addEventListener('click', handleResetClick);
       console.log('Attached direct DOM listener to reset button');
+      const rect = resetButton.getBoundingClientRect();
+      console.log('Reset button rect:', rect);
     }
     if (rpmSlider) {
       rpmSlider.addEventListener('input', handleRPMChange);
