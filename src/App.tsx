@@ -472,13 +472,19 @@ function App() {
           <div className="transport-controls">
             <button
               className="play-button"
-              onClick={togglePlay}
+              onClick={() => {
+                console.log('Play button clicked!');
+                togglePlay();
+              }}
             >
               {playhead.isPlaying ? '⏸️' : '▶️'}
             </button>
             <button
               className="reset-button"
-              onClick={resetPlayhead}
+              onClick={() => {
+                console.log('Reset button clicked!');
+                resetPlayhead();
+              }}
             >
               🔄
             </button>
@@ -494,13 +500,16 @@ function App() {
           <div className="settings-section">
             <div className="setting-group">
               <label className="setting-label">RPM</label>
-            <input 
-              type="range" 
+            <input
+              type="range"
                 min="30"
                 max="300"
                 step="10"
                 value={playhead.rpm}
-                onChange={(e) => updateRPM(Number(e.target.value))}
+                onChange={(e) => {
+                  console.log('RPM slider changed:', e.target.value);
+                  updateRPM(Number(e.target.value));
+                }}
                 className="rpm-slider"
               />
               <span className="control-value">{playhead.rpm}</span>
@@ -511,7 +520,7 @@ function App() {
             <select
               value={selectedScale}
               onChange={(e) => {
-                console.log('Scale changed to:', e.target.value);
+                console.log('Scale dropdown clicked, value:', e.target.value);
                 setSelectedScale(e.target.value);
               }}
                 className="scale-select"
@@ -529,7 +538,7 @@ function App() {
               <select
                 value={rootNote}
                 onChange={(e) => {
-                  console.log('Root note changed to:', e.target.value);
+                  console.log('Root note dropdown clicked, value:', e.target.value);
                   setRootNote(e.target.value);
                 }}
                 className="root-note-select"

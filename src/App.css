@@ -281,13 +281,13 @@ body {
   padding: 10px;
   border: 2px solid #ffff00;
   border-style: outset;
-  background: linear-gradient(180deg, #ff0000, #cc0000); /* TEMP DEBUG: Red background */
-  color: #ffffff; /* TEMP DEBUG: White text */
+  background: linear-gradient(180deg, #00ff00, #00cc00);
+  color: #000000;
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
   font-family: 'Comic Sans MS', sans-serif;
-  text-shadow: 1px 1px 0px #000000;
+  text-shadow: 1px 1px 0px #ffffff;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
@@ -481,17 +481,6 @@ body {
   color: #00ff00;
 }
 
-/* TEMP DEBUG STYLES */
-.rpm-slider {
-  background: #ff0000 !important; /* Red background */
-  border: 3px solid #ffff00 !important;
-}
-
-.scale-select, .root-note-select {
-  background: #ff0000 !important; /* Red background */
-  color: #ffffff !important; /* White text */
-  border: 3px solid #ffff00 !important;
-}
 
 .root-note-control {
   display: flex;
