@@ -81,7 +81,7 @@ function App() {
   };
 
   // Check for note triggers
-  const checkNoteTriggers = useCallback((angle: number) => {
+  const checkNoteTriggers = useCallback((angle: number, lastAngle: number) => {
     polygons.forEach(polygon => {
       if (!polygon.active) return;
 
@@ -89,15 +89,27 @@ function App() {
 
       for (let i = 0; i < polygon.sides; i++) {
         const vertexAngle = (i * anglePerVertex) % 360;
-        const angleDiff = Math.abs(angle - vertexAngle);
 
-        if (angleDiff < 5 || angleDiff > 355) {
+        // Check if the playhead has crossed this vertex angle
+        let crossedVertex = false;
+
+        if (lastAngle < angle) {
+          // Normal progression (no wraparound)
+          crossedVertex = (lastAngle < vertexAngle && angle >= vertexAngle);
+        } else {
+          // Wraparound case (angle went from high to low)
+          crossedVertex = (lastAngle < vertexAngle || angle >= vertexAngle);
+        }
+
+        if (crossedVertex) {
           const note = polygon.notes[i];
           if (note) {
             const noteId = `${polygon.id}_${i}_${note}`;
             const now = performance.now();
             const lastTrigger = lastTriggerTimeRef.current[noteId];
-            const minInterval = Math.max(50, (60 / rpmRef.current) * 1000 / polygons.length);
+            // Use a more generous minimum interval based on current RPM
+            const currentRPM = rpmRef.current;
+            const minInterval = Math.max(100, (60 / currentRPM) * 1000 / 4);
 
             if (!lastTrigger || now - lastTrigger > minInterval) {
               lastTriggerTimeRef.current[noteId] = now;
@@ -112,19 +124,20 @@ function App() {
 
   // Animation loop
   useEffect(() => {
-        if (!playhead.isPlaying) {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = undefined;
+      if (!playhead.isPlaying) {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = undefined;
+    }
+        return;
       }
-          return;
-        }
-        
+
     if (animationRef.current) {
       return; // Animation already running
     }
 
     const startTime = performance.now();
+    let lastAngle = playhead.angle;
 
     const animate = (currentTime: number) => {
       const elapsed = (currentTime - startTime) / 1000;
@@ -133,13 +146,14 @@ function App() {
       const progress = revolutions - Math.floor(revolutions);
       const newAngle = progress * 360;
 
-        checkNoteTriggers(newAngle);
-        
+        checkNoteTriggers(newAngle, lastAngle);
+
         setPlayhead(prev => ({
           ...prev,
           angle: newAngle
         }));
-        
+
+        lastAngle = newAngle;
         animationRef.current = requestAnimationFrame(animate);
       };
 
@@ -151,7 +165,7 @@ function App() {
         animationRef.current = undefined;
       }
     };
-  }, [playhead.isPlaying]);
+  }, [playhead.isPlaying, checkNoteTriggers, playhead.angle]);
 
   // Update RPM ref
   useEffect(() => {
