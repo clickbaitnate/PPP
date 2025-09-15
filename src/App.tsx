@@ -444,6 +444,41 @@ function App() {
     }));
   }, []);
 
+  // Random populate polygon with notes from current scale
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleRandomPopulate = useCallback((polygonId: number) => {
+    console.log('Random populating polygon:', polygonId);
+
+    // Get current scale notes
+    const scaleNotes = scaleSystem.getScaleNotes(selectedScale, rootNote);
+    console.log('Available scale notes:', scaleNotes);
+
+    setPolygons(prev => prev.map(polygon => {
+      if (polygon.id !== polygonId) return polygon;
+
+      const newNotes: (string | null)[] = [];
+
+      // Randomly assign notes to each vertex
+      for (let i = 0; i < polygon.sides; i++) {
+        // 70% chance of getting a note, 30% chance of being empty
+        if (Math.random() < 0.7) {
+          // Pick a random note from the current scale
+          const randomNote = scaleNotes[Math.floor(Math.random() * scaleNotes.length)];
+          newNotes.push(randomNote);
+        } else {
+          // Leave vertex empty
+          newNotes.push(null);
+        }
+      }
+
+      console.log('New random notes for polygon:', newNotes);
+      return {
+        ...polygon,
+        notes: newNotes
+      };
+    }));
+  }, [selectedScale, rootNote, scaleSystem]);
+
   // Render components
   const renderPolygon = (polygon: Polygon) => {
     const centerX = 250;
@@ -599,6 +634,7 @@ function App() {
           onEditPolygon={handleEditPolygon}
           onDeletePolygon={handleDeletePolygon}
           onChangePolygonSides={handleChangePolygonSides}
+          onRandomPopulate={handleRandomPopulate}
         />
       </main>
 

@@ -18,6 +18,7 @@ interface ControlPanelProps {
   onEditPolygon: (polygon: Polygon) => void;
   onDeletePolygon: (polygonId: number) => void;
   onChangePolygonSides: (polygonId: number, sides: number) => void;
+  onRandomPopulate: (polygonId: number) => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -37,6 +38,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onEditPolygon,
   onDeletePolygon,
   onChangePolygonSides,
+  onRandomPopulate,
 }) => {
   return (
     <div style={{
@@ -328,6 +330,21 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                   disabled={polygons.length <= 1}
                 >
                   🗑️
+                </button>
+                <button
+                  style={{
+                    padding: '4px 6px',
+                    background: '#0066cc',
+                    border: '1px solid #0099ff',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    borderRadius: '3px'
+                  }}
+                  onClick={() => onRandomPopulate(polygon.id)}
+                  title="Random Populate"
+                >
+                  🎲
                 </button>
               </div>
             </div>
