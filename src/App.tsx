@@ -72,12 +72,18 @@ function App() {
 
   // Touch handling for mobile
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileView, setMobileView] = useState<'controls' | 'sequencer'>('sequencer');
 
   // Detect mobile devices and set up touch handling
   useEffect(() => {
     const checkIsMobile = () => {
       const mobile = window.innerWidth <= 768 || 'ontouchstart' in window;
       setIsMobile(mobile);
+
+      // Reset to sequencer view when switching between mobile/desktop
+      if (!mobile) {
+        setMobileView('sequencer');
+      }
     };
 
     checkIsMobile();
@@ -86,6 +92,11 @@ function App() {
     return () => {
       window.removeEventListener('resize', checkIsMobile);
     };
+  }, []);
+
+  // Toggle between mobile views
+  const toggleMobileView = useCallback(() => {
+    setMobileView(prev => prev === 'controls' ? 'sequencer' : 'controls');
   }, []);
 
   // Get scale notes
@@ -646,39 +657,144 @@ function App() {
       </header>
       
       <main className="app-main">
-        <div className="canvas-container">
-          <div className="polygon-canvas" ref={canvasRef}>
-            <svg width="500" height="500" className="polygon-svg">
-              {renderPlayhead()}
-              {polygons.map(polygon => (
-                <g key={polygon.id} className="polygon-group">
-                  {renderPolygon(polygon)}
-                </g>
-              ))}
-          </svg>
+        {/* Mobile View Toggle Button */}
+        {isMobile && (
+          <div style={{
+            position: 'fixed',
+            top: '100px',
+            right: '10px',
+            zIndex: 1000,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '5px'
+          }}>
+            <button
+              onClick={toggleMobileView}
+              className="mobile-toggle-btn"
+              style={{
+                padding: '8px 12px',
+                background: mobileView === 'sequencer' ? '#00ff00' : '#666666',
+                border: '2px solid #00ff00',
+                borderRadius: '4px',
+                color: mobileView === 'sequencer' ? '#000000' : '#00ff00',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                fontFamily: 'Courier New, monospace',
+                boxShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
+                minWidth: '80px',
+                touchAction: 'manipulation'
+              }}
+            >
+              {mobileView === 'sequencer' ? '🎵 SEQUENCER' : '🎛️ CONTROLS'}
+            </button>
           </div>
-                    </div>
-                    
-        <ControlPanel
-          playhead={playhead}
-          selectedScale={selectedScale}
-          rootNote={rootNote}
-          polygonSettings={polygonSettings}
-          polygons={polygons}
-          isMobile={isMobile}
-          onPlayToggle={handlePlayToggle}
-          onReset={handleReset}
-          onRPMChange={handleRPMChange}
-          onScaleChange={handleScaleChange}
-          onRootNoteChange={handleRootNoteChange}
-          onSpacingChange={handleSpacingChange}
-          onSettingsClick={handleSettingsClick}
-          onAddPolygon={handleAddPolygon}
-          onEditPolygon={handleEditPolygon}
-          onDeletePolygon={handleDeletePolygon}
-          onChangePolygonSides={handleChangePolygonSides}
-          onRandomPopulate={handleRandomPopulate}
-        />
+        )}
+
+        {/* Main Content Area */}
+        {!isMobile ? (
+          // Desktop Layout: Side by side
+          <>
+            <div className="canvas-container">
+              <div className="polygon-canvas" ref={canvasRef}>
+                <svg width="500" height="500" className="polygon-svg">
+                  {renderPlayhead()}
+                  {polygons.map(polygon => (
+                    <g key={polygon.id} className="polygon-group">
+                      {renderPolygon(polygon)}
+                    </g>
+                  ))}
+                </svg>
+              </div>
+            </div>
+
+            <ControlPanel
+              playhead={playhead}
+              selectedScale={selectedScale}
+              rootNote={rootNote}
+              polygonSettings={polygonSettings}
+              polygons={polygons}
+              isMobile={isMobile}
+              onPlayToggle={handlePlayToggle}
+              onReset={handleReset}
+              onRPMChange={handleRPMChange}
+              onScaleChange={handleScaleChange}
+              onRootNoteChange={handleRootNoteChange}
+              onSpacingChange={handleSpacingChange}
+              onSettingsClick={handleSettingsClick}
+              onAddPolygon={handleAddPolygon}
+              onEditPolygon={handleEditPolygon}
+              onDeletePolygon={handleDeletePolygon}
+              onChangePolygonSides={handleChangePolygonSides}
+              onRandomPopulate={handleRandomPopulate}
+            />
+          </>
+        ) : (
+          // Mobile Layout: Toggle between views
+          <div style={{
+            width: '100%',
+            height: 'calc(100vh - 140px)',
+            position: 'relative'
+          }}>
+            {mobileView === 'sequencer' ? (
+              // Sequencer View
+              <div className="canvas-container" style={{
+                margin: '5px',
+                height: '100%'
+              }}>
+                <div className="polygon-canvas" ref={canvasRef} style={{
+                  width: '100%',
+                  height: '100%',
+                  maxWidth: '100vw',
+                  maxHeight: 'calc(100vh - 160px)'
+                }}>
+                  <svg
+                    width="100%"
+                    height="100%"
+                    viewBox="0 0 500 500"
+                    preserveAspectRatio="xMidYMid meet"
+                    className="polygon-svg"
+                  >
+                    {renderPlayhead()}
+                    {polygons.map(polygon => (
+                      <g key={polygon.id} className="polygon-group">
+                        {renderPolygon(polygon)}
+                      </g>
+                    ))}
+                  </svg>
+                </div>
+              </div>
+            ) : (
+              // Controls View
+              <div style={{
+                padding: '10px',
+                height: '100%',
+                overflowY: 'auto'
+              }}>
+                <ControlPanel
+                  playhead={playhead}
+                  selectedScale={selectedScale}
+                  rootNote={rootNote}
+                  polygonSettings={polygonSettings}
+                  polygons={polygons}
+                  isMobile={isMobile}
+                  onPlayToggle={handlePlayToggle}
+                  onReset={handleReset}
+                  onRPMChange={handleRPMChange}
+                  onScaleChange={handleScaleChange}
+                  onRootNoteChange={handleRootNoteChange}
+                  onSpacingChange={handleSpacingChange}
+                  onSettingsClick={handleSettingsClick}
+                  onAddPolygon={handleAddPolygon}
+                  onEditPolygon={handleEditPolygon}
+                  onDeletePolygon={handleDeletePolygon}
+                  onChangePolygonSides={handleChangePolygonSides}
+                  onRandomPopulate={handleRandomPopulate}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Edit Popup */}
