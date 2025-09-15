@@ -124,28 +124,32 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             textTransform: 'uppercase'
           }}>RPM</label>
           <input
-            type="range"
-            min="30"
-            max="300"
-            step="10"
+            type="number"
+            min="0.1"
+            max="1000"
+            step="0.1"
             value={playhead.rpm}
-            onChange={(e) => onRPMChange(Number(e.target.value))}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              if (!isNaN(value) && value > 0) {
+                onRPMChange(value);
+              }
+            }}
             style={{
               width: '100%',
-              height: '20px',
+              padding: '4px 8px',
               background: '#000000',
               border: '2px solid #00ff00',
               borderStyle: 'inset',
+              color: '#00ff00',
+              fontSize: '12px',
+              fontFamily: 'Courier New, monospace',
+              fontWeight: 'bold',
               outline: 'none',
-              cursor: 'pointer'
+              textAlign: 'center'
             }}
+            placeholder="Enter RPM"
           />
-          <span style={{
-            color: '#00ff00',
-            fontSize: '12px',
-            fontFamily: 'Courier New, monospace',
-            textAlign: 'center'
-          }}>{playhead.rpm}</span>
         </div>
 
         <div style={{
