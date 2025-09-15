@@ -70,27 +70,39 @@ function App() {
   // Initialize scale system
   const scaleSystem = createScaleSystem();
 
-  // Touch handling for mobile
-  const [isMobile, setIsMobile] = useState(false);
+  // Device detection and layout handling
+  const [deviceType, setDeviceType] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [mobileView, setMobileView] = useState<'controls' | 'sequencer'>('sequencer');
 
-  // Detect mobile devices and set up touch handling
+  // Detect device type and set up appropriate handling
   useEffect(() => {
-    const checkIsMobile = () => {
-      const mobile = window.innerWidth <= 768 || 'ontouchstart' in window;
-      setIsMobile(mobile);
+    const checkDeviceType = () => {
+      const width = window.innerWidth;
+      const hasTouch = 'ontouchstart' in window;
 
-      // Reset to sequencer view when switching between mobile/desktop
-      if (!mobile) {
+      let type: 'desktop' | 'tablet' | 'mobile';
+
+      if (width <= 600 || (hasTouch && width <= 768)) {
+        type = 'mobile';
+      } else if (width <= 1200 && width > 600) {
+        type = 'tablet';
+      } else {
+        type = 'desktop';
+      }
+
+      setDeviceType(type);
+
+      // Reset to sequencer view when switching to desktop
+      if (type === 'desktop') {
         setMobileView('sequencer');
       }
     };
 
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
+    checkDeviceType();
+    window.addEventListener('resize', checkDeviceType);
 
     return () => {
-      window.removeEventListener('resize', checkIsMobile);
+      window.removeEventListener('resize', checkDeviceType);
     };
   }, []);
 
@@ -657,42 +669,44 @@ function App() {
       </header>
       
       <main className="app-main">
-        {/* Mobile View Toggle Button */}
-        {isMobile && (
+        {/* Mobile/Tablet View Toggle Button */}
+        {(deviceType === 'mobile' || deviceType === 'tablet') && (
           <div style={{
             position: 'fixed',
             top: '100px',
-            right: '10px',
+            right: deviceType === 'mobile' ? '10px' : '320px',
             zIndex: 1000,
             display: 'flex',
             flexDirection: 'column',
             gap: '5px'
           }}>
-            <button
-              onClick={toggleMobileView}
-              className="mobile-toggle-btn"
-              style={{
-                padding: '8px 12px',
-                background: mobileView === 'sequencer' ? '#00ff00' : '#666666',
-                border: '2px solid #00ff00',
-                borderRadius: '4px',
-                color: mobileView === 'sequencer' ? '#000000' : '#00ff00',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontFamily: 'Courier New, monospace',
-                boxShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
-                minWidth: '80px',
-                touchAction: 'manipulation'
-              }}
-            >
-              {mobileView === 'sequencer' ? '🎵 SEQUENCER' : '🎛️ CONTROLS'}
-            </button>
+            {deviceType === 'mobile' && (
+              <button
+                onClick={toggleMobileView}
+                className="mobile-toggle-btn"
+                style={{
+                  padding: '8px 12px',
+                  background: mobileView === 'sequencer' ? '#00ff00' : '#666666',
+                  border: '2px solid #00ff00',
+                  borderRadius: '4px',
+                  color: mobileView === 'sequencer' ? '#000000' : '#00ff00',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontFamily: 'Courier New, monospace',
+                  boxShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
+                  minWidth: '80px',
+                  touchAction: 'manipulation'
+                }}
+              >
+                {mobileView === 'sequencer' ? '🎵 SEQUENCER' : '🎛️ CONTROLS'}
+              </button>
+            )}
           </div>
         )}
 
         {/* Main Content Area */}
-        {!isMobile ? (
+        {deviceType === 'desktop' ? (
           // Desktop Layout: Side by side
           <>
             <div className="canvas-container">
@@ -714,7 +728,44 @@ function App() {
               rootNote={rootNote}
               polygonSettings={polygonSettings}
               polygons={polygons}
-              isMobile={isMobile}
+              isMobile={deviceType !== 'desktop' && deviceType !== 'tablet'}
+              onPlayToggle={handlePlayToggle}
+              onReset={handleReset}
+              onRPMChange={handleRPMChange}
+              onScaleChange={handleScaleChange}
+              onRootNoteChange={handleRootNoteChange}
+              onSpacingChange={handleSpacingChange}
+              onSettingsClick={handleSettingsClick}
+              onAddPolygon={handleAddPolygon}
+              onEditPolygon={handleEditPolygon}
+              onDeletePolygon={handleDeletePolygon}
+              onChangePolygonSides={handleChangePolygonSides}
+              onRandomPopulate={handleRandomPopulate}
+            />
+          </>
+        ) : deviceType === 'tablet' ? (
+          // Tablet Layout: Side by side with optimized spacing
+          <>
+            <div className="canvas-container">
+              <div className="polygon-canvas" ref={canvasRef}>
+                <svg width="500" height="500" className="polygon-svg">
+                  {renderPlayhead()}
+                  {polygons.map(polygon => (
+                    <g key={polygon.id} className="polygon-group">
+                      {renderPolygon(polygon)}
+                    </g>
+                  ))}
+                </svg>
+              </div>
+            </div>
+
+            <ControlPanel
+              playhead={playhead}
+              selectedScale={selectedScale}
+              rootNote={rootNote}
+              polygonSettings={polygonSettings}
+              polygons={polygons}
+              isMobile={false}
               onPlayToggle={handlePlayToggle}
               onReset={handleReset}
               onRPMChange={handleRPMChange}
@@ -777,7 +828,7 @@ function App() {
                   rootNote={rootNote}
                   polygonSettings={polygonSettings}
                   polygons={polygons}
-                  isMobile={isMobile}
+                  isMobile={true}
                   onPlayToggle={handlePlayToggle}
                   onReset={handleReset}
                   onRPMChange={handleRPMChange}

@@ -1836,30 +1836,58 @@ body {
   }
 }
 
-/* Tablet screens */
-@media (max-width: 900px) {
+/* Tablet screens - Optimized layout */
+@media (max-width: 900px) and (min-width: 601px) {
   .app-main {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 10px;
   }
 
   .canvas-container {
-    order: -1; /* Canvas appears first on tablet */
-    margin: 5px;
-    max-width: 100%;
+    flex: 1;
+    max-width: calc(100vw - 320px); /* Leave space for controls */
+    margin: 0;
   }
 
   .control-panel {
-    width: min(600px, calc(100vw - 20px));
-    max-width: min(600px, calc(100vw - 20px));
-    max-height: 350px;
-    margin: 5px;
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+    max-height: calc(100vh - 140px);
+    margin: 0;
+    position: sticky;
+    top: 10px;
   }
 
   .polygon-canvas {
-    width: min(400px, calc(100vw - 40px));
-    height: min(400px, calc(100vw - 40px));
+    width: 100%;
+    height: min(500px, calc(100vh - 160px));
+    max-width: 100%;
+  }
+
+  /* Make control panel more compact on tablets */
+  .control-panel {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  /* Optimize button layout for tablets */
+  .play-button, .reset-button {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  /* Make inputs appropriately sized for tablets */
+  input[type="range"], input[type="number"] {
+    height: 18px;
+    font-size: 12px;
+  }
+
+  select {
+    font-size: 12px;
+    padding: 4px 8px;
   }
 }
 
@@ -1943,6 +1971,77 @@ body {
   .play-button, .reset-button {
     padding: 6px;
     font-size: 10px;
+  }
+}
+
+/* Tablet-specific optimizations */
+@media (max-width: 900px) and (min-width: 601px) {
+  /* Ensure tablet layout maximizes canvas space */
+  .canvas-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Make canvas as large as possible within available space */
+  .polygon-canvas {
+    width: min(100%, calc(100vh - 180px));
+    height: min(100%, calc(100vh - 180px));
+    max-width: calc(100vw - 340px);
+    max-height: calc(100vh - 160px);
+  }
+
+  /* Optimize control panel for tablets */
+  .control-panel {
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  /* Better spacing for tablet header */
+  .app-header {
+    padding: 15px;
+    min-height: 90px;
+  }
+
+  .app-header h1 {
+    font-size: 24px;
+  }
+}
+
+/* Large tablets / iPad Pro */
+@media (max-width: 1200px) and (min-width: 901px) {
+  .control-panel {
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+  }
+
+  .canvas-container {
+    max-width: calc(100vw - 340px);
+  }
+
+  .polygon-canvas {
+    width: min(450px, calc(100vw - 360px));
+    height: min(450px, calc(100vw - 360px));
+    max-width: calc(100vw - 360px);
+    max-height: calc(100vh - 180px);
+  }
+
+  /* Larger buttons and inputs for tablets */
+  .play-button, .reset-button {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+
+  input[type="range"], input[type="number"] {
+    height: 20px;
+    font-size: 13px;
+  }
+
+  select {
+    font-size: 13px;
+    padding: 5px 10px;
   }
 }
 
