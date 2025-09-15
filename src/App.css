@@ -12,8 +12,10 @@ body {
   background-size: 400% 400%;
   animation: gradientShift 10s ease infinite;
   color: #00ff00;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   image-rendering: pixelated;
+  touch-action: manipulation; /* Better touch handling */
 }
 
 @keyframes gradientShift {
@@ -31,20 +33,37 @@ body {
 /* Header */
 .app-header {
   background: #000000;
-  background-image: 
-    radial-gradient(2px 2px at 20px 30px, #ffffff, transparent),
-    radial-gradient(2px 2px at 40px 70px, #00ff00, transparent),
-    radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
-    radial-gradient(1px 1px at 130px 80px, #00ff00, transparent),
-    radial-gradient(2px 2px at 160px 30px, #ffffff, transparent),
-    radial-gradient(1px 1px at 200px 60px, #00ff00, transparent),
-    radial-gradient(1px 1px at 240px 20px, #ffffff, transparent),
-    radial-gradient(2px 2px at 280px 70px, #00ff00, transparent),
-    radial-gradient(1px 1px at 320px 40px, #ffffff, transparent),
-    radial-gradient(1px 1px at 360px 80px, #00ff00, transparent);
+  background-image:
+    /* Random starfield pattern */
+    radial-gradient(1px 1px at 5% 20%, #ffffff, transparent),
+    radial-gradient(2px 2px at 15% 70%, #00ff00, transparent),
+    radial-gradient(1px 1px at 25% 40%, #ffffff, transparent),
+    radial-gradient(1px 1px at 35% 80%, #00ff00, transparent),
+    radial-gradient(2px 2px at 45% 30%, #ffffff, transparent),
+    radial-gradient(1px 1px at 55% 60%, #00ff00, transparent),
+    radial-gradient(1px 1px at 65% 20%, #ffffff, transparent),
+    radial-gradient(2px 2px at 75% 70%, #00ff00, transparent),
+    radial-gradient(1px 1px at 85% 40%, #ffffff, transparent),
+    radial-gradient(1px 1px at 95% 80%, #00ff00, transparent),
+    radial-gradient(1px 1px at 10% 90%, #ffffff, transparent),
+    radial-gradient(2px 2px at 30% 10%, #00ff00, transparent),
+    radial-gradient(1px 1px at 50% 95%, #ffffff, transparent),
+    radial-gradient(1px 1px at 70% 5%, #00ff00, transparent),
+    radial-gradient(2px 2px at 90% 85%, #ffffff, transparent),
+    /* Additional scattered stars */
+    radial-gradient(1px 1px at 8% 45%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 22% 15%, rgba(0, 255, 0, 0.6), transparent),
+    radial-gradient(1px 1px at 42% 55%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 62% 25%, rgba(0, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 82% 65%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 18% 75%, rgba(0, 255, 0, 0.6), transparent),
+    radial-gradient(1px 1px at 38% 35%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 58% 85%, rgba(0, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 78% 15%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 98% 45%, rgba(0, 255, 0, 0.6), transparent);
   background-repeat: repeat;
-  background-size: 400px 100px;
-  animation: starfield 20s linear infinite;
+  background-size: 100% 100%;
+  animation: starfieldDrift 30s linear infinite;
   padding: 15px;
   text-align: center;
   border: 3px solid #00ff00;
@@ -52,6 +71,7 @@ body {
   box-shadow: 0 0 20px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.3);
   position: relative;
   overflow: hidden;
+  min-height: 80px;
 }
 
 .app-header::before {
@@ -61,22 +81,35 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(1px 1px at 50px 50px, #ffffff, transparent),
-    radial-gradient(1px 1px at 100px 20px, #00ff00, transparent),
-    radial-gradient(1px 1px at 150px 80px, #ffffff, transparent),
-    radial-gradient(1px 1px at 200px 30px, #00ff00, transparent),
-    radial-gradient(1px 1px at 250px 60px, #ffffff, transparent),
-    radial-gradient(1px 1px at 300px 10px, #00ff00, transparent);
+  background:
+    /* More scattered stars for the overlay */
+    radial-gradient(1px 1px at 12% 35%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 28% 65%, rgba(0, 255, 0, 0.8), transparent),
+    radial-gradient(1px 1px at 44% 15%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 60% 85%, rgba(0, 255, 0, 0.9), transparent),
+    radial-gradient(1px 1px at 76% 25%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 92% 75%, rgba(0, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 6% 55%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 34% 5%, rgba(0, 255, 0, 0.8), transparent),
+    radial-gradient(1px 1px at 68% 45%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 84% 95%, rgba(0, 255, 0, 0.7), transparent),
+    /* Twinkling effect with different opacities */
+    radial-gradient(2px 2px at 15% 50%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 45% 30%, rgba(0, 255, 0, 0.6), transparent),
+    radial-gradient(2px 2px at 75% 70%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 25% 90%, rgba(0, 255, 0, 0.8), transparent);
   background-repeat: repeat;
-  background-size: 350px 100px;
-  animation: starfield 15s linear infinite reverse;
-  opacity: 0.7;
+  background-size: 100% 100%;
+  animation: starfieldDrift 25s linear infinite reverse;
+  opacity: 0.6;
 }
 
-@keyframes starfield {
-  0% { background-position: 0px 0px; }
-  100% { background-position: -400px 0px; }
+@keyframes starfieldDrift {
+  0% { background-position: 0% 0%; }
+  25% { background-position: 10% -5%; }
+  50% { background-position: 20% -10%; }
+  75% { background-position: 30% -15%; }
+  100% { background-position: 40% -20%; }
 }
 
 .app-header h1 {
@@ -131,6 +164,7 @@ body {
   flex: 1;
   display: flex;
   overflow: visible; /* Changed from hidden to allow control panel to be fully visible */
+  min-height: 0; /* Allow flex items to shrink */
 }
 
 /* Canvas Container */
@@ -139,21 +173,24 @@ body {
   position: relative;
   background: #000000;
   background-image:
-    radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
-    radial-gradient(1px 1px at 40px 70px, #00ff00, transparent),
-    radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
-    radial-gradient(1px 1px at 130px 80px, #00ff00, transparent),
-    radial-gradient(1px 1px at 160px 30px, #ffffff, transparent),
-    radial-gradient(1px 1px at 200px 60px, #00ff00, transparent),
-    radial-gradient(1px 1px at 240px 20px, #ffffff, transparent),
-    radial-gradient(1px 1px at 280px 70px, #00ff00, transparent),
-    radial-gradient(1px 1px at 320px 40px, #ffffff, transparent),
-    radial-gradient(1px 1px at 360px 80px, #00ff00, transparent),
-    radial-gradient(1px 1px at 400px 30px, #ffffff, transparent),
-    radial-gradient(1px 1px at 440px 70px, #00ff00, transparent);
+    /* More organic starfield pattern */
+    radial-gradient(1px 1px at 8% 25%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(2px 2px at 18% 65%, rgba(0, 255, 0, 0.8), transparent),
+    radial-gradient(1px 1px at 32% 35%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 46% 75%, rgba(0, 255, 0, 0.9), transparent),
+    radial-gradient(2px 2px at 58% 15%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 72% 55%, rgba(0, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 84% 85%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 12% 45%, rgba(0, 255, 0, 0.6), transparent),
+    radial-gradient(2px 2px at 28% 95%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 44% 5%, rgba(0, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 60% 65%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(2px 2px at 76% 25%, rgba(0, 255, 0, 0.8), transparent),
+    radial-gradient(1px 1px at 88% 75%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 4% 35%, rgba(0, 255, 0, 0.9), transparent);
   background-repeat: repeat;
-  background-size: 480px 100px;
-  animation: starfield 25s linear infinite;
+  background-size: 100% 100%;
+  animation: starfieldDrift 35s linear infinite;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,6 +198,7 @@ body {
   border-style: groove;
   margin: 10px;
   overflow: hidden;
+  min-width: 0; /* Allow flex shrinking */
   /* Removed pointer-events: none to allow polygon vertex clicks */
 }
 
@@ -186,17 +224,20 @@ body {
 }
 
 .polygon-canvas {
-  width: 500px;
-  height: 500px;
+  width: min(500px, calc(100vw - 40px));
+  height: min(500px, calc(100vw - 40px));
+  max-width: 500px;
+  max-height: 500px;
   position: relative;
   border: 4px solid #ffff00;
   border-radius: 50%;
   background: radial-gradient(circle, #000000 0%, #1a0033 50%, #000000 100%);
-  box-shadow: 
+  box-shadow:
     0 0 30px #00ff00,
     inset 0 0 30px rgba(255, 0, 255, 0.3),
     0 0 60px #ff00ff;
   animation: canvasGlow 2s ease-in-out infinite alternate;
+  touch-action: manipulation; /* Better touch handling */
 }
 
 @keyframes canvasGlow {
@@ -222,26 +263,29 @@ body {
 
 /* Control Panel */
 .control-panel {
-  width: 250px;
+  width: 280px;
+  min-width: 280px;
+  max-width: 320px;
   flex-shrink: 0; /* Prevent control panel from shrinking */
   pointer-events: auto; /* Ensure control panel can receive clicks */
   background: #000000;
   background-image:
-    radial-gradient(1px 1px at 15px 25px, #ffffff, transparent),
-    radial-gradient(1px 1px at 35px 55px, #00ff00, transparent),
-    radial-gradient(1px 1px at 55px 15px, #ffffff, transparent),
-    radial-gradient(1px 1px at 75px 45px, #00ff00, transparent),
-    radial-gradient(1px 1px at 95px 25px, #ffffff, transparent),
-    radial-gradient(1px 1px at 115px 55px, #00ff00, transparent),
-    radial-gradient(1px 1px at 135px 15px, #ffffff, transparent),
-    radial-gradient(1px 1px at 155px 45px, #00ff00, transparent),
-    radial-gradient(1px 1px at 175px 25px, #ffffff, transparent),
-    radial-gradient(1px 1px at 195px 55px, #00ff00, transparent),
-    radial-gradient(1px 1px at 215px 15px, #ffffff, transparent),
-    radial-gradient(1px 1px at 235px 45px, #00ff00, transparent);
+    /* More organic starfield for control panel */
+    radial-gradient(1px 1px at 10% 15%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 25% 45%, rgba(0, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 40% 25%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 55% 65%, rgba(0, 255, 0, 0.6), transparent),
+    radial-gradient(1px 1px at 70% 35%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 85% 75%, rgba(0, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 15% 85%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 30% 5%, rgba(0, 255, 0, 0.8), transparent),
+    radial-gradient(1px 1px at 45% 55%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 60% 25%, rgba(0, 255, 0, 0.9), transparent),
+    radial-gradient(1px 1px at 75% 75%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 90% 45%, rgba(0, 255, 0, 0.7), transparent);
   background-repeat: repeat;
-  background-size: 250px 70px;
-  animation: starfield 30s linear infinite;
+  background-size: 100% 100%;
+  animation: starfieldDrift 40s linear infinite;
   padding: 15px;
   border: 3px solid #00ff00;
   border-style: ridge;
@@ -250,8 +294,32 @@ body {
   gap: 15px;
   box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto; /* Allow vertical scrolling */
+  overflow-x: hidden;
   z-index: 10;
+  max-height: calc(100vh - 120px); /* Leave room for header */
+  scrollbar-width: thin;
+  scrollbar-color: #00ff00 #000000;
+}
+
+/* Custom scrollbar for webkit browsers */
+.control-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.control-panel::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 4px;
+}
+
+.control-panel::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 4px;
+  border: 1px solid #000000;
+}
+
+.control-panel::-webkit-scrollbar-thumb:hover {
+  background: #00cc00;
 }
 
 .control-panel::before {
@@ -1750,5 +1818,130 @@ body {
 [data-theme="cyberpunk"] .button-emoji {
   filter: drop-shadow(0 0 3px var(--primary-color));
   text-shadow: 0 0 5px var(--secondary-color);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet and smaller desktop screens */
+@media (max-width: 1200px) {
+  .control-panel {
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .polygon-canvas {
+    width: min(450px, calc(100vw - 60px));
+    height: min(450px, calc(100vw - 60px));
+  }
+}
+
+/* Tablet screens */
+@media (max-width: 900px) {
+  .app-main {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .canvas-container {
+    order: -1; /* Canvas appears first on tablet */
+    margin: 5px;
+    max-width: 100%;
+  }
+
+  .control-panel {
+    width: min(600px, calc(100vw - 20px));
+    max-width: min(600px, calc(100vw - 20px));
+    max-height: 350px;
+    margin: 5px;
+  }
+
+  .polygon-canvas {
+    width: min(400px, calc(100vw - 40px));
+    height: min(400px, calc(100vw - 40px));
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 600px) {
+  .app {
+    padding: 5px;
+  }
+
+  .app-header {
+    padding: 10px 5px;
+    min-height: 70px;
+  }
+
+  .app-header h1 {
+    font-size: 20px;
+  }
+
+  .app-header p {
+    font-size: 14px;
+  }
+
+  .app-main {
+    gap: 15px;
+  }
+
+  .canvas-container {
+    margin: 2px;
+  }
+
+  .control-panel {
+    width: calc(100vw - 10px);
+    max-width: calc(100vw - 10px);
+    padding: 8px;
+    gap: 8px;
+    max-height: 280px;
+    margin: 2px;
+  }
+
+  .polygon-canvas {
+    width: min(350px, calc(100vw - 30px));
+    height: min(350px, calc(100vw - 30px));
+    border-width: 3px;
+  }
+
+  /* Make buttons smaller on mobile */
+  .play-button, .reset-button {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  /* Make inputs smaller on mobile */
+  input[type="range"], input[type="number"] {
+    height: 16px;
+    font-size: 11px;
+  }
+
+  /* Make selects smaller on mobile */
+  select {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+
+/* iPhone SE and similar small screens */
+@media (max-width: 400px) {
+  .app-header h1 {
+    font-size: 18px;
+  }
+
+  .polygon-canvas {
+    width: min(300px, calc(100vw - 20px));
+    height: min(300px, calc(100vw - 20px));
+  }
+
+  .control-panel {
+    max-height: 240px;
+    padding: 6px;
+  }
+
+  .play-button, .reset-button {
+    padding: 6px;
+    font-size: 10px;
+  }
 }
 

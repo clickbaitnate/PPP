@@ -70,6 +70,24 @@ function App() {
   // Initialize scale system
   const scaleSystem = createScaleSystem();
 
+  // Touch handling for mobile
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile devices and set up touch handling
+  useEffect(() => {
+    const checkIsMobile = () => {
+      const mobile = window.innerWidth <= 768 || 'ontouchstart' in window;
+      setIsMobile(mobile);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+    };
+  }, []);
+
   // Get scale notes
   const getScaleNotes = (scaleName: string, root: string = rootNote) => {
     return scaleSystem.getScaleNotes(scaleName, root);
@@ -546,6 +564,30 @@ function App() {
             // Then cycle to the next note
             cycleNote(polygon.id, i);
           }}
+          onTouchStart={(e) => {
+            // Prevent default touch behavior on mobile
+            e.preventDefault();
+            console.log('Polygon vertex touched:', polygon.id, i);
+          }}
+          onTouchEnd={(e) => {
+            // Handle touch end as click on mobile
+            e.preventDefault();
+
+            console.log('Polygon vertex touch ended:', polygon.id, i);
+
+            // Get the current note before cycling
+            const currentNote = polygon.notes[i];
+            console.log('Current note before cycling:', currentNote);
+
+            // Preview the current note immediately
+            if (currentNote) {
+              console.log('🎵 Previewing current note:', currentNote);
+              audioEngine.playNote(currentNote, 0.5, { volume: 0.3 });
+            }
+
+            // Then cycle to the next note
+            cycleNote(polygon.id, i);
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
             deleteNote(polygon.id, i);
@@ -623,6 +665,7 @@ function App() {
           rootNote={rootNote}
           polygonSettings={polygonSettings}
           polygons={polygons}
+          isMobile={isMobile}
           onPlayToggle={handlePlayToggle}
           onReset={handleReset}
           onRPMChange={handleRPMChange}

@@ -7,6 +7,7 @@ interface ControlPanelProps {
   rootNote: string;
   polygonSettings: PolygonSettings;
   polygons: Polygon[];
+  isMobile: boolean;
   onPlayToggle: () => void;
   onReset: () => void;
   onRPMChange: (rpm: number) => void;
@@ -27,6 +28,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   rootNote,
   polygonSettings,
   polygons,
+  isMobile,
   onPlayToggle,
   onReset,
   onRPMChange,
@@ -42,13 +44,14 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 }) => {
   return (
     <div style={{
-      width: '250px',
+      width: isMobile ? 'calc(100vw - 10px)' : '280px',
+      maxWidth: isMobile ? 'calc(100vw - 10px)' : '320px',
       backgroundColor: '#000000',
       border: '3px solid #00ff00',
-      padding: '15px',
+      padding: isMobile ? '8px' : '15px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '15px',
+      gap: isMobile ? '8px' : '15px',
       position: 'relative'
     }}>
       <div style={{
