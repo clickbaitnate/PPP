@@ -13,7 +13,7 @@ body {
   animation: gradientShift 10s ease infinite;
   color: #00ff00;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden; /* Prevent page scrolling - let containers handle their own */
   image-rendering: pixelated;
   touch-action: manipulation; /* Better touch handling */
 }
@@ -1893,6 +1893,10 @@ body {
 
 /* Mobile screens */
 @media (max-width: 600px) {
+  body {
+    overflow-y: auto; /* Allow page scrolling on mobile for view switching */
+  }
+
   .app {
     padding: 5px;
   }
