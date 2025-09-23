@@ -13,7 +13,7 @@ body {
   animation: gradientShift 10s ease infinite;
   color: #00ff00;
   overflow-x: hidden;
-  overflow-y: hidden; /* Prevent page scrolling - let containers handle their own */
+  overflow-y: auto; /* Allow page scrolling when content exceeds viewport */
   image-rendering: pixelated;
   touch-action: manipulation; /* Better touch handling */
 }
@@ -298,7 +298,8 @@ body {
   overflow-y: auto; /* Allow vertical scrolling */
   overflow-x: hidden;
   z-index: 10;
-  max-height: calc(100vh - 120px); /* Leave room for header */
+  min-height: 400px; /* Minimum height to show main controls */
+  max-height: calc(100vh - 100px); /* Generous height for desktop */
   scrollbar-width: thin;
   scrollbar-color: #00ff00 #000000;
 }
