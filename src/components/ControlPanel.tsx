@@ -52,7 +52,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       display: 'flex',
       flexDirection: 'column',
       gap: isMobile ? '8px' : '15px',
-      position: 'relative'
+      position: 'relative',
+      height: 'fit-content', // Allow natural height
+      maxHeight: 'none' // Remove max-height from main container
     }}>
       <div style={{
         display: 'flex',
@@ -269,8 +271,13 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
 
       <div style={{
-        marginTop: '15px'
-      }}>
+        marginTop: '15px',
+        maxHeight: isMobile ? 'calc(100vh - 400px)' : 'calc(100vh - 450px)',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        scrollbarWidth: 'thin',
+        scrollbarColor: '#00ff00 #000000'
+      }} onWheel={(e) => e.stopPropagation()}>
         {polygons.map(polygon => (
           <div key={polygon.id} style={{
             display: 'flex',

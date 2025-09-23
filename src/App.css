@@ -295,13 +295,10 @@ body {
   gap: 15px;
   box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
   position: relative;
-  overflow-y: auto; /* Allow vertical scrolling */
+  overflow-y: visible; /* Let individual sections handle scrolling */
   overflow-x: hidden;
   z-index: 10;
-  min-height: 400px; /* Minimum height to show main controls */
-  max-height: calc(100vh - 100px); /* Generous height for desktop */
-  scrollbar-width: thin;
-  scrollbar-color: #00ff00 #000000;
+  height: fit-content; /* Allow natural height - sections handle their own scrolling */
 }
 
 /* Custom scrollbar for webkit browsers */
